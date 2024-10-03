@@ -7,11 +7,13 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColorPalette = lightColorScheme(
-    background = White
+    background = White,
+    onBackground = Gray
 )
 
 private val DarkColorPalette = darkColorScheme(
-    background = Black
+    background = Black,
+    onBackground = Gray
 )
 
 @Composable
