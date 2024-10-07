@@ -19,14 +19,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun StoneDiaryListItem(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .padding(20.dp, 5.dp)
             .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
     ) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically,

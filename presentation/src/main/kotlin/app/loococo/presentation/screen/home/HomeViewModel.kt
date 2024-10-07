@@ -1,6 +1,7 @@
 package app.loococo.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
+import app.loococo.domain.model.Diary
 import app.loococo.domain.usecase.DiaryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.ContainerHost
@@ -16,8 +17,10 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
     ContainerHost<HomeState, HomeSideEffect>, ViewModel() {
 
     override val container = container<HomeState, HomeSideEffect>(HomeState())
+
     private val currentDate =
         LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
 
     init {
         loadDiariesForMonth()
@@ -25,58 +28,60 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
 
     fun handleIntent(intent: HomeIntent) {
         when (intent) {
-            is HomeIntent.NavigateToPreviousMonth -> navigateToPreviousMonth()
-            is HomeIntent.NavigateToNextMonth -> navigateToNextMonth()
+            is HomeIntent.NavigateToPreviousMonth -> updateMonth(-1)
+            is HomeIntent.NavigateToNextMonth -> updateMonth(1)
         }
     }
 
-    private fun navigateToPreviousMonth() = intent {
-        reduce { state.copy(currentDate = state.currentDate.minusMonths(1)) }
-        loadDiariesForMonth()
-    }
-
-    private fun navigateToNextMonth() = intent {
-        reduce { state.copy(currentDate = state.currentDate.plusMonths(1)) }
+    private fun updateMonth(offset: Long) = intent {
+        reduce { state.copy(currentDate = state.currentDate.plusMonths(offset)) }
         loadDiariesForMonth()
     }
 
     private fun loadDiariesForMonth() = intent {
-        val (startOfMonth, endOfMonth) = getStartAndEndOfMonth(state.currentDate)
+        val currentMonthStart = state.currentDate.withDayOfMonth(1)
 
-        val cachedData = state.cachedDiaryList[state.currentDate.withDayOfMonth(1)]
-        if (cachedData != null) {
-            val todayDiaryExists = cachedData.any { it.date == currentDate }
-            reduce { state.copy(diaryList = cachedData, isTodayDiary = todayDiaryExists) }
+        state.cachedDiaryList[currentMonthStart]?.let { cachedList ->
+            updateDiaryState(cachedList)
             return@intent
         }
 
+        fetchDiariesForCurrentMonth()
+    }
+
+    private suspend fun fetchDiariesForCurrentMonth() = intent {
         try {
-            useCase.getDiariesForMonth(startOfMonth, endOfMonth).collect { diaryList ->
-                val todayDiaryExists = diaryList.any { it.date == currentDate }
+            useCase.getDiariesForMonth(state.currentDate).collect { diaryList ->
+                updateDiaryState(diaryList)
                 reduce {
                     state.copy(
-                        diaryList = diaryList,
                         cachedDiaryList = state.cachedDiaryList + (state.currentDate.withDayOfMonth(
                             1
-                        ) to diaryList),
-                        isTodayDiary = todayDiaryExists
+                        ) to diaryList)
                     )
                 }
             }
         } catch (e: Exception) {
-            reduce { state.copy(diaryList = emptyList(), isTodayDiary = false) }
+            reduce { state.copy(diaryList = emptyList(), todayDiaryState = TodayDiaryState.Hide) }
         }
     }
 
-    private fun getStartAndEndOfMonth(date: LocalDate): Pair<Long, Long> {
-        val startOfMonth = date.withDayOfMonth(1)
-        val endOfMonth = date.withDayOfMonth(date.lengthOfMonth())
-
-        val startEpochMilli =
-            startOfMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val endEpochMilli =
-            endOfMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-        return Pair(startEpochMilli, endEpochMilli)
+    private fun updateDiaryState(diaryList: List<Diary>) = intent {
+        val todayDiaryExists = diaryList.any {
+            it.date == currentDate && isSameMonthAsToday(state.currentDate)
+        }
+        reduce {
+            state.copy(
+                diaryList = diaryList,
+                todayDiaryState = when {
+                    isSameMonthAsToday(state.currentDate) && todayDiaryExists -> TodayDiaryState.Completed
+                    isSameMonthAsToday(state.currentDate) -> TodayDiaryState.Incomplete
+                    else -> TodayDiaryState.Hide
+                }
+            )
+        }
     }
+
+    private fun isSameMonthAsToday(date: LocalDate): Boolean =
+        date.year == LocalDate.now().year && date.month == LocalDate.now().month
 }

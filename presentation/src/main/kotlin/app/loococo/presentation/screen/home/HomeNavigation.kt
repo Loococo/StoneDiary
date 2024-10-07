@@ -5,8 +5,15 @@ import androidx.navigation.compose.composable
 
 const val homeRoute = "home_route"
 
-fun NavGraphBuilder.homeScreen() {
+fun NavGraphBuilder.homeScreen(
+    onDetail: () -> Unit,
+    onWrite: () -> Unit
+) {
     composable(route = homeRoute) {
-        HomeRoute()
+        HomeRoute(onDetail, onWrite)
     }
 }
+
+
+
+

@@ -1,5 +1,6 @@
 package app.loococo.presentation.screen.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,33 +11,38 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.loococo.domain.model.Diary
+import app.loococo.presentation.R
+import app.loococo.presentation.component.StoneDiaryBodyText
+import app.loococo.presentation.component.StoneDiaryHeadlineText
+import app.loococo.presentation.component.StoneDiaryLabelText
 import app.loococo.presentation.component.StoneDiaryListItem
-import app.loococo.presentation.theme.Black
+import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.utils.StoneDiaryIcons
 
 @Composable
-internal fun HomeRoute() {
-    HomeScreen()
+internal fun HomeRoute(
+    onDetail: () -> Unit,
+    onWrite: () -> Unit
+) {
+    HomeScreen(onDetail, onWrite)
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onDetail: () -> Unit,
+    onWrite: () -> Unit
+) {
     val viewModel: HomeViewModel = hiltViewModel()
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
@@ -48,8 +54,29 @@ fun HomeScreen() {
         )
         DiaryList(
             diaryList = state.diaryList,
-            isTodayDiary = state.isTodayDiary
+            todayDiaryState = state.todayDiaryState,
+            onDetail = onDetail,
+            onWrite = onWrite
         )
+    }
+}
+
+@Composable
+fun DiaryList(
+    diaryList: List<Diary>,
+    todayDiaryState: TodayDiaryState,
+    onDetail: () -> Unit,
+    onWrite: () -> Unit
+) {
+    LazyColumn {
+        item {
+            when (todayDiaryState) {
+                TodayDiaryState.Completed -> CompletedDiaryEntry(onDetail)
+                TodayDiaryState.Incomplete -> IncompleteDiaryEntry(onWrite)
+                TodayDiaryState.Hide -> {}
+            }
+        }
+        items(diaryList) { DiaryEntryItem(it) }
     }
 }
 
@@ -65,19 +92,17 @@ fun DiaryHeader(
             .padding(20.dp, 35.dp),
         horizontalArrangement = Arrangement.Center
     ) {
-        DiaryNavigationButton(
+        StoneDiaryNavigationButton(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Previous",
             onClick = navigateToPreviousMonth
         )
-        Text(
-            modifier = Modifier.weight(1f),
+        StoneDiaryHeadlineText(
             text = currentDate,
-            fontSize = 24.sp,
-            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f)
         )
-        DiaryNavigationButton(
+        StoneDiaryNavigationButton(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowRight,
             description = "Next",
@@ -87,50 +112,12 @@ fun DiaryHeader(
 }
 
 @Composable
-fun DiaryNavigationButton(
-    size: Dp,
-    icon: ImageVector,
-    description: String,
-    color: Color = Black,
-    onClick: () -> Unit
-) {
-    IconButton(
-        modifier = Modifier.size(size),
-        onClick = onClick
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = description,
-            modifier = Modifier.size(size),
-            tint = color
-        )
-    }
-}
-
-@Composable
-fun DiaryList(
-    diaryList: List<Diary>,
-    isTodayDiary: Boolean
-) {
-    LazyColumn {
-        item {
-            if (isTodayDiary) {
-                CompletedDiaryEntry()
-            } else {
-                IncompleteDiaryEntry()
-            }
-        }
-        items(diaryList) { DiaryEntryItem() }
-    }
-}
-
-@Composable
-fun IncompleteDiaryEntry() {
-    StoneDiaryListItem {
-        Text(
-            text = "오늘의 일기를 기록해주세요.😥",
-            fontSize = 16.sp,
-            modifier = Modifier.weight(1f)
+fun IncompleteDiaryEntry(onWrite: () -> Unit) {
+    StoneDiaryListItem(modifier = Modifier.clickable { onWrite() }) {
+        StoneDiaryBodyText(
+            text = stringResource(R.string.incomplete_diary),
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Start
         )
         Icon(
             imageVector = StoneDiaryIcons.ArrowRight,
@@ -141,13 +128,12 @@ fun IncompleteDiaryEntry() {
 }
 
 @Composable
-fun CompletedDiaryEntry() {
-    StoneDiaryListItem {
-        Text(
-            text = "오늘의 일기를 기록했습니다.😄",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Thin,
-            modifier = Modifier.weight(1f)
+fun CompletedDiaryEntry(onDetail: () -> Unit) {
+    StoneDiaryListItem(modifier = Modifier.clickable { onDetail() }) {
+        StoneDiaryBodyText(
+            text = stringResource(R.string.completed_diary),
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Start
         )
         Icon(
             imageVector = StoneDiaryIcons.Check,
@@ -158,23 +144,15 @@ fun CompletedDiaryEntry() {
 }
 
 @Composable
-fun DiaryEntryItem() {
+fun DiaryEntryItem(item: Diary) {
     StoneDiaryListItem {
-        Text(
-            text = "04일",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
-        )
+        StoneDiaryLabelText(text = stringResource(R.string.month, item.localDate.monthValue))
         VerticalDivider(
             thickness = 1.dp,
             color = Color.Gray,
             modifier = Modifier.padding(5.dp, 2.dp)
         )
-        Text(
-            text = "일기 제목~~",
-            fontSize = 16.sp,
-            modifier = Modifier.weight(1f)
-        )
+        StoneDiaryBodyText(text = item.title)
         Icon(
             imageVector = StoneDiaryIcons.Favorite,
             contentDescription = "",
