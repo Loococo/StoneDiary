@@ -19,8 +19,6 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
-
         lifecycleScope.launch {
             viewModel.uiState.collect { uiState ->
                 splashScreen.setKeepOnScreenCondition { uiState == MainUiState.Loading }
