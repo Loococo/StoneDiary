@@ -6,6 +6,8 @@ import app.loococo.presentation.screen.detail.detailScreen
 import app.loococo.presentation.screen.detail.navigateToDetail
 import app.loococo.presentation.screen.home.homeRoute
 import app.loococo.presentation.screen.home.homeScreen
+import app.loococo.presentation.screen.home.navigateToHome
+import app.loococo.presentation.screen.write.navigateToEmotion
 import app.loococo.presentation.screen.write.navigateToWrite
 import app.loococo.presentation.screen.write.writeScreen
 
@@ -20,10 +22,17 @@ fun StoneDiaryNavHost(
         startDestination = homeRoute
     ) {
         homeScreen(
-            onDetail = navController::navigateToDetail,
-            onWrite = navController::navigateToWrite
+            navigateToDetail = navController::navigateToDetail,
+            navigateToWrite = navController::navigateToEmotion
         )
-        detailScreen()
-        writeScreen()
+        detailScreen(
+            navigateToHome = navController::navigateToHome,
+            navigateUp = navController::navigateUp
+        )
+        writeScreen(
+            navigateToWrite = navController::navigateToWrite,
+            navigateToHome = navController::navigateToHome,
+            navigateUp = navController::navigateUp
+        )
     }
 }

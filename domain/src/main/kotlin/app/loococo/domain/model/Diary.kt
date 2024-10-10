@@ -5,9 +5,11 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 data class Diary(
-    val date: Long,
-    val title: String,
-    val content: String
+    val id: Long = 0,
+    val date: Long = 0L,
+    val title: String = "",
+    val content: String = "",
+    val emotion: String = ""
 ) {
     val localDate: LocalDate
         get() = Instant.ofEpochMilli(date)

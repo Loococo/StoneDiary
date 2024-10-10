@@ -9,6 +9,20 @@ import javax.inject.Inject
 
 class DiaryUseCase @Inject constructor(private val repository: DiaryRepository) {
 
+    suspend fun insert(currentDate: LocalDate, title: String, content: String, emotion: String) {
+        val diary = Diary(
+            date = currentDate.toEpochMilli(),
+            title = title,
+            content = content,
+            emotion = emotion
+        )
+        return repository.insert(diary)
+    }
+
+    fun getDiary(id:Long):Flow<Diary> {
+        return repository.getDiary(id)
+    }
+
     fun getDiariesForMonth(currentDate: LocalDate): Flow<List<Diary>> {
         val (startOfMonth, endOfMonth) = getStartAndEndOfMonth(currentDate)
         return repository.getDiariesForMonth(startOfMonth, endOfMonth)

@@ -1,5 +1,6 @@
 package app.loococo.presentation.screen.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,10 +14,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,35 +32,45 @@ import app.loococo.presentation.component.StoneDiaryHeadlineText
 import app.loococo.presentation.component.StoneDiaryLabelText
 import app.loococo.presentation.component.StoneDiaryListItem
 import app.loococo.presentation.component.StoneDiaryNavigationButton
+import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import app.loococo.presentation.utils.StoneDiaryIcons
+import app.loococo.presentation.utils.formattedHomeDate
 
 @Composable
 internal fun HomeRoute(
-    onDetail: () -> Unit,
-    onWrite: () -> Unit
+    navigateToDetail: (Long) -> Unit,
+    navigateToWrite: () -> Unit
 ) {
-    HomeScreen(onDetail, onWrite)
+    HomeScreen(navigateToDetail, navigateToWrite)
 }
 
 @Composable
 fun HomeScreen(
-    onDetail: () -> Unit,
-    onWrite: () -> Unit
+    navigateToDetail: (Long) -> Unit,
+    navigateToWrite: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val sideEffectFlow = viewModel.container.sideEffectFlow
+
+    LaunchedEffect(sideEffectFlow) {
+        sideEffectFlow.collect { sideEffect ->
+            when (sideEffect) {
+                is HomeSideEffect.NavigateToDetail -> navigateToDetail(sideEffect.id)
+                HomeSideEffect.NavigateToWrite -> navigateToWrite()
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         DiaryHeader(
-            currentDate = state.formattedDate,
-            navigateToPreviousMonth = { viewModel.handleIntent(HomeIntent.NavigateToPreviousMonth) },
-            navigateToNextMonth = { viewModel.handleIntent(HomeIntent.NavigateToNextMonth) }
+            currentDate = state.currentDate.formattedHomeDate(),
+            onEventSent = viewModel::handleIntent
         )
         DiaryList(
             diaryList = state.diaryList,
             todayDiaryState = state.todayDiaryState,
-            onDetail = onDetail,
-            onWrite = onWrite
+            onEventSent = viewModel::handleIntent
         )
     }
 }
@@ -65,38 +79,36 @@ fun HomeScreen(
 fun DiaryList(
     diaryList: List<Diary>,
     todayDiaryState: TodayDiaryState,
-    onDetail: () -> Unit,
-    onWrite: () -> Unit
+    onEventSent: (event: HomeEvent) -> Unit
 ) {
     LazyColumn {
         item {
             when (todayDiaryState) {
-                TodayDiaryState.Completed -> CompletedDiaryEntry(onDetail)
-                TodayDiaryState.Incomplete -> IncompleteDiaryEntry(onWrite)
+                TodayDiaryState.Completed -> CompletedDiaryEntry()
+                TodayDiaryState.Incomplete -> IncompleteDiaryEntry(onEventSent)
                 TodayDiaryState.Hide -> {}
             }
         }
-        items(diaryList) { DiaryEntryItem(it) }
+        items(diaryList) { DiaryEntryItem(it, onEventSent) }
     }
 }
 
 @Composable
 fun DiaryHeader(
     currentDate: String,
-    navigateToPreviousMonth: () -> Unit,
-    navigateToNextMonth: () -> Unit
+    onEventSent: (event: HomeEvent) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp, 35.dp),
+            .padding(20.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         StoneDiaryNavigationButton(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Previous",
-            onClick = navigateToPreviousMonth
+            onClick = { onEventSent(HomeEvent.PreviousMonthClickEvent) }
         )
         StoneDiaryHeadlineText(
             text = currentDate,
@@ -106,14 +118,17 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowRight,
             description = "Next",
-            onClick = navigateToNextMonth
+            onClick = { onEventSent(HomeEvent.NextMonthClickEvent) }
         )
     }
 }
 
 @Composable
-fun IncompleteDiaryEntry(onWrite: () -> Unit) {
-    StoneDiaryListItem(modifier = Modifier.clickable { onWrite() }) {
+fun IncompleteDiaryEntry(onEventSent: (event: HomeEvent) -> Unit) {
+    StoneDiaryListItem(
+        modifier = Modifier
+            .clickable { onEventSent(HomeEvent.WriteClickEvent) }
+    ) {
         StoneDiaryBodyText(
             text = stringResource(R.string.incomplete_diary),
             modifier = Modifier.weight(1f),
@@ -128,8 +143,8 @@ fun IncompleteDiaryEntry(onWrite: () -> Unit) {
 }
 
 @Composable
-fun CompletedDiaryEntry(onDetail: () -> Unit) {
-    StoneDiaryListItem(modifier = Modifier.clickable { onDetail() }) {
+fun CompletedDiaryEntry() {
+    StoneDiaryListItem {
         StoneDiaryBodyText(
             text = stringResource(R.string.completed_diary),
             modifier = Modifier.weight(1f),
@@ -144,19 +159,27 @@ fun CompletedDiaryEntry(onDetail: () -> Unit) {
 }
 
 @Composable
-fun DiaryEntryItem(item: Diary) {
-    StoneDiaryListItem {
+fun DiaryEntryItem(item: Diary, onEventSent: (event: HomeEvent) -> Unit) {
+    StoneDiaryListItem(
+        modifier = Modifier
+            .clickable { onEventSent(HomeEvent.DetailClickEvent(item.id)) }
+    ) {
         StoneDiaryLabelText(text = stringResource(R.string.month, item.localDate.monthValue))
         VerticalDivider(
             thickness = 1.dp,
             color = Color.Gray,
-            modifier = Modifier.padding(5.dp, 2.dp)
+            modifier = Modifier.padding(7.dp, 3.dp)
         )
-        StoneDiaryBodyText(text = item.title)
-        Icon(
-            imageVector = StoneDiaryIcons.Favorite,
+        StoneDiaryBodyText(
+            text = item.title,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.Start,
+            fontWeight = FontWeight.Bold
+        )
+        Image(
+            painter = painterResource(item.emotion.formatEmotionEnum().resId),
             contentDescription = "",
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(30.dp)
         )
     }
 }

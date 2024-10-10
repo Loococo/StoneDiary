@@ -6,6 +6,7 @@ import app.loococo.domain.usecase.DiaryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import java.time.LocalDate
@@ -26,11 +27,21 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
         loadDiariesForMonth()
     }
 
-    fun handleIntent(intent: HomeIntent) {
+    fun handleIntent(intent: HomeEvent) {
         when (intent) {
-            is HomeIntent.NavigateToPreviousMonth -> updateMonth(-1)
-            is HomeIntent.NavigateToNextMonth -> updateMonth(1)
+            HomeEvent.PreviousMonthClickEvent -> updateMonth(-1)
+            HomeEvent.NextMonthClickEvent -> updateMonth(1)
+            is HomeEvent.DetailClickEvent -> navigateToDetail(intent.id)
+            HomeEvent.WriteClickEvent -> navigateToWrite()
         }
+    }
+
+    private fun navigateToDetail(id: Long) = intent {
+        postSideEffect(HomeSideEffect.NavigateToDetail(id))
+    }
+
+    private fun navigateToWrite() = intent {
+        postSideEffect(HomeSideEffect.NavigateToWrite)
     }
 
     private fun updateMonth(offset: Long) = intent {
@@ -84,4 +95,10 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
 
     private fun isSameMonthAsToday(date: LocalDate): Boolean =
         date.year == LocalDate.now().year && date.month == LocalDate.now().month
+}
+
+sealed class TodayDiaryState {
+    data object Incomplete : TodayDiaryState()
+    data object Completed : TodayDiaryState()
+    data object Hide : TodayDiaryState()
 }
