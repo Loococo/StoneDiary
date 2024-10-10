@@ -2,5 +2,8 @@
     <string name="app_name">돌맹다이어리</string>
     <string name="incomplete_diary">오늘의 일기를 기록해주세요.😥</string>
     <string name="completed_diary">오늘의 일기를 기록했습니다.😄</string>
-    <string name="month">%일</string>
+    <string name="month">%d일</string>
+    <string name="emotion_title">오늘의 감정은 무엇인가요?</string>
+    <string name="write_content_waring">제목과 내용을 입력해 주세요.</string>
+    <string name="load_diary_data_waring">다시 시도해 주세요.</string>
 </resources>

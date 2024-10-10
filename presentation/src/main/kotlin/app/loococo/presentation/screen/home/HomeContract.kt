@@ -10,22 +10,16 @@ data class HomeState(
     val diaryList: List<Diary> = emptyList(),
     val cachedDiaryList: Map<LocalDate, List<Diary>> = emptyMap(),
     val todayDiaryState: TodayDiaryState = TodayDiaryState.Hide
-) {
-    val formattedDate: String
-        get() = currentDate.format(DateTimeFormatter.ofPattern("yyyy.MM"))
-}
+)
 
 sealed class HomeSideEffect {
-
+    data class NavigateToDetail(val id: Long) : HomeSideEffect()
+    data object NavigateToWrite : HomeSideEffect()
 }
 
-sealed class HomeIntent {
-    data object NavigateToPreviousMonth : HomeIntent()
-    data object NavigateToNextMonth : HomeIntent()
-}
-
-sealed class TodayDiaryState {
-    data object Incomplete : TodayDiaryState()
-    data object Completed : TodayDiaryState()
-    data object Hide : TodayDiaryState()
+sealed class HomeEvent {
+    data object PreviousMonthClickEvent : HomeEvent()
+    data object NextMonthClickEvent : HomeEvent()
+    data class DetailClickEvent(val id: Long) : HomeEvent()
+    data object WriteClickEvent : HomeEvent()
 }
