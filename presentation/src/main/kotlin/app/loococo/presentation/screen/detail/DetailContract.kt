@@ -11,10 +11,10 @@ data class DetailState(
 sealed class DetailSideEffect {
     data object NavigateToHome : DetailSideEffect()
     data object NavigateUp : DetailSideEffect()
-    data class Toast(val res: Int) : DetailSideEffect()
+    data class ShowToast(val res: Int) : DetailSideEffect()
 }
 
 sealed class DetailEvent {
-    data class DiaryIdEvent(val id: Long) : DetailEvent()
-    data object BackClickEvent : DetailEvent()
+    data class OnDiaryIdUpdated(val id: Long) : DetailEvent()
+    data object OnBackClicked : DetailEvent()
 }

@@ -5,4 +5,6 @@ plugins {
 dependencies {
     implementation(libs.hilt.javax.inject)
     implementation(libs.jetbrains.kotlinx)
+    implementation(libs.androidx.paging.common)
+
 }

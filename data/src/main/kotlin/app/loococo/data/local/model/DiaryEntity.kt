@@ -3,6 +3,7 @@ package app.loococo.data.local.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import app.loococo.domain.model.Diary
+import kotlin.concurrent.thread
 
 @Entity(tableName = "diary")
 data class DiaryEntity(
@@ -10,7 +11,8 @@ data class DiaryEntity(
     val date: Long,
     val title: String,
     val content: String,
-    val emotion: String
+    val emotion: String,
+    val imageList: List<String>
 )
 
 fun DiaryEntity.toDiary(): Diary {
@@ -19,7 +21,8 @@ fun DiaryEntity.toDiary(): Diary {
         date = this.date,
         title = this.title,
         content = this.content,
-        emotion = this.emotion
+        emotion = this.emotion,
+        imageList = this.imageList
     )
 }
 
@@ -28,6 +31,7 @@ fun Diary.toDiaryEntity(): DiaryEntity {
         date = this.date,
         title = this.title,
         content = this.content,
-        emotion = this.emotion
+        emotion = this.emotion,
+        imageList = this.imageList
     )
 }

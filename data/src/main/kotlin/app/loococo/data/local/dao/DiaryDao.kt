@@ -14,6 +14,6 @@ interface DiaryDao {
     @Query("SELECT * FROM diary WHERE id = :id")
     fun getDiary(id:Long): Flow<DiaryEntity>
 
-    @Query("SELECT * FROM diary WHERE date >= :startEpochMilli AND date <= :endEpochMilli")
+    @Query("SELECT * FROM diary WHERE date >= :startEpochMilli AND date <= :endEpochMilli ORDER BY date DESC")
     fun getDiariesForMonth(startEpochMilli: Long, endEpochMilli: Long): Flow<List<DiaryEntity>>
 }

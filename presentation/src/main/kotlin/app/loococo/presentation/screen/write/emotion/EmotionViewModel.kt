@@ -14,19 +14,19 @@ class EmotionViewModel @Inject constructor() :
     ContainerHost<EmotionState, EmotionSideEffect>, ViewModel() {
     override val container = container<EmotionState, EmotionSideEffect>(EmotionState())
 
-    fun handleIntent(intent: EmotionEvent) {
-        when (intent) {
-            EmotionEvent.BackClickEvent -> navigateUp()
-            is EmotionEvent.EmotionClickEvent -> navigateToWrite(intent.emotion)
+    fun onEventReceived(event: EmotionEvent) {
+        when (event) {
+            is EmotionEvent.OnEmotionClicked -> onEmotionClicked(event.emotion)
+            EmotionEvent.OnBackClicked -> onBackClicked()
         }
     }
 
-    private fun navigateToWrite(emotion: String) = intent {
+    private fun onEmotionClicked(emotion: String) = intent {
         reduce { state.copy(emotion = emotion) }
         postSideEffect(EmotionSideEffect.NavigateToWrite)
     }
 
-    private fun navigateUp() = intent {
+    private fun onBackClicked() = intent {
         postSideEffect(EmotionSideEffect.NavigateUp)
     }
 }
