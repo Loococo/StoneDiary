@@ -6,7 +6,12 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ImageUseCase @Inject constructor(private val imageRepository: ImageRepository) {
-    operator fun invoke(): Flow<PagingData<String>> {
+
+    fun getImages(): Flow<PagingData<String>> {
         return imageRepository.getImages()
+    }
+
+    fun getFirstImage(): String {
+        return imageRepository.getFirstImage()
     }
 }

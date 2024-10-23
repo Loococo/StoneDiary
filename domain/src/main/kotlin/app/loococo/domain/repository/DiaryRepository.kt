@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface DiaryRepository {
     suspend fun insert(diary: Diary)
-    fun getDiary(id: Long): Flow<Diary>
-    fun getDiariesForMonth(startEpochMilli: Long, endEpochMilli: Long): Flow<List<Diary>>
+    suspend fun update(id: Long, diary: Diary)
+    suspend fun getDiary(id: Long): Flow<Diary>
+    suspend fun getDiariesForMonth(startEpochMilli: Long, endEpochMilli: Long): Flow<List<Diary>>
+    suspend fun deleteDiary(id: Long)
 }

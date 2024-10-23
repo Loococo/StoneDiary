@@ -1,12 +1,12 @@
 package app.loococo.presentation.screen.detail
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,11 +16,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,21 +42,36 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-internal fun DetailRoute(navigateToHome: () -> Unit, navigateUp: () -> Unit) {
-    DetailScreen(navigateToHome, navigateUp)
+internal fun DetailRoute(
+    navigateToHome: () -> Unit,
+    navigateToWrite: (Long) -> Unit,
+    navigateUp: () -> Unit
+) {
+    DetailScreen(navigateToHome, navigateToWrite, navigateUp)
 }
 
 @Composable
-fun DetailScreen(navigateToHome: () -> Unit, navigateUp: () -> Unit) {
+fun DetailScreen(
+    navigateToHome: () -> Unit,
+    navigateToWrite: (Long) -> Unit,
+    navigateUp: () -> Unit
+) {
     val viewModel: DetailViewModel = hiltViewModel()
 
     val state by viewModel.collectAsState()
     val context = LocalContext.current
 
+    var showMoreDialog by rememberSaveable { mutableStateOf(false) }
+
     viewModel.collectSideEffect {
         when (it) {
             DetailSideEffect.NavigateToHome -> navigateToHome()
+            DetailSideEffect.NavigateToWrite -> navigateToWrite(state.id)
             DetailSideEffect.NavigateUp -> navigateUp()
+            DetailSideEffect.MoreDialog -> {
+                showMoreDialog = true
+            }
+
             is DetailSideEffect.ShowToast -> {
                 Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
             }
@@ -67,6 +83,21 @@ fun DetailScreen(navigateToHome: () -> Unit, navigateUp: () -> Unit) {
         DetailTitle(diary = state.diary)
         DetailBody(diary = state.diary)
     }
+
+    MoreDialog(
+        visible = showMoreDialog,
+        currentDate = state.isCurrentDiary,
+        onDismissRequest = {
+            showMoreDialog = false
+        },
+        onModify = {
+            viewModel.onEventReceived(DetailEvent.OnModifyClicked)
+        },
+        onDelete = {
+            viewModel.onEventReceived(DetailEvent.OnDeletedClicked)
+        }
+    )
+
 }
 
 @Composable
@@ -88,7 +119,7 @@ fun DetailHeader(onEventSent: (event: DetailEvent) -> Unit) {
             size = 35.dp,
             icon = StoneDiaryIcons.More,
             description = "more",
-            onClick = { }
+            onClick = { onEventSent(DetailEvent.OnMoreDialogClicked) }
         )
     }
 }
@@ -134,7 +165,6 @@ fun DetailBody(diary: Diary) {
         StoneDiaryTitleText(diary.content)
         HeightSpacer(height = 10)
 
-        // DetailPhoto를 LazyColumn의 항목으로 이동
         DetailPhoto(diary.imageList)
     }
 }

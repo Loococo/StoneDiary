@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <bitmap
-            android:src="@drawable/ic_progress"
-        android:gravity="center" />
-    </item>
-    <item>
         <shape>
-            <solid android:color="#1A000000" />
+            <solid android:color="#08000000" />
         </shape>
     </item>
+    <item
+        android:drawable="@drawable/ic_progress"
+        android:gravity="center"
+        android:width="50pt"
+        android:height="50pt"/>
 </layer-list>

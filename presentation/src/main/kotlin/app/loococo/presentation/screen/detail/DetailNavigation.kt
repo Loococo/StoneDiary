@@ -5,9 +5,13 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import app.loococo.presentation.screen.AppRoute
 
-fun NavGraphBuilder.detailScreen(navigateToHome: () -> Unit, navigateUp: () -> Unit) {
+fun NavGraphBuilder.detailScreen(
+    navigateToHome: () -> Unit,
+    navigateToWrite: (Long) -> Unit,
+    navigateUp: () -> Unit
+) {
     composable<AppRoute.Detail> {
-        DetailRoute(navigateToHome, navigateUp)
+        DetailRoute(navigateToHome, navigateToWrite, navigateUp)
     }
 }
 

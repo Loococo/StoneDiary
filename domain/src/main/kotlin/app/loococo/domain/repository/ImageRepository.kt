@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface ImageRepository {
     fun getImages(): Flow<PagingData<String>>
+    fun getFirstImage(): String
 }

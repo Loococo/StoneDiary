@@ -9,12 +9,12 @@ import app.loococo.presentation.screen.write.content.ContentRoute
 import app.loococo.presentation.screen.write.emotion.EmotionRoute
 
 fun NavGraphBuilder.writeScreen(
-    navigateToWrite: (String) -> Unit,
+    navigateToWrite: (String, Long) -> Unit,
     navigateToHome: () -> Unit,
     navigateToGallery: () -> Unit,
     navigateUp: () -> Unit
 ) {
-    navigation<AppRoute.Write>(startDestination = AppRoute.Write.Emotion) {
+    navigation<AppRoute.Write>(startDestination = AppRoute.Write.Emotion::class) {
         composable<AppRoute.Write.Emotion> {
             EmotionRoute(navigateToWrite, navigateUp)
         }
@@ -25,12 +25,12 @@ fun NavGraphBuilder.writeScreen(
     }
 }
 
-fun NavController.navigateToEmotion() {
-    this.navigate(AppRoute.Write.Emotion)
+fun NavController.navigateToEmotion(id: Long = 0L) {
+    this.navigate(AppRoute.Write.Emotion(id))
 }
 
-fun NavController.navigateToWrite(emotion: String) {
-    this.navigate(AppRoute.Write.Content(emotion))
+fun NavController.navigateToWrite(emotion: String, id: Long = 0L) {
+    this.navigate(AppRoute.Write.Content(emotion, id))
 }
 
 fun NavController.navigateUpToWrite(image: String) {
