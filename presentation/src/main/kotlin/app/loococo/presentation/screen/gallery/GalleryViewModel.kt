@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import app.loococo.domain.usecase.ImageUseCase
+import app.loococo.presentation.screen.write.content.ContentSideEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -23,13 +24,17 @@ class GalleryViewModel @Inject constructor(
     ContainerHost<GalleryState, GallerySideEffect>, ViewModel() {
     override val container = container<GalleryState, GallerySideEffect>(GalleryState())
 
-    val imagePager: Flow<PagingData<String>> = useCase()
+    val imagePager: Flow<PagingData<String>> = useCase.getImages()
 
-    fun handleIntent(intent: GalleryEvent) {
-        when (intent) {
-            GalleryEvent.BackClickEvent -> navigateUp()
-            is GalleryEvent.ImageClickEvent -> updateImage(intent.image)
-            GalleryEvent.SaveClickEvent -> navigateUp()
+    init {
+        onEventReceived(GalleryEvent.OnImageClicked(useCase.getFirstImage()))
+    }
+
+    fun onEventReceived(event: GalleryEvent) {
+        when (event) {
+            GalleryEvent.OnBackClicked -> onBackClicked()
+            is GalleryEvent.OnImageClicked -> updateImage(event.image)
+            GalleryEvent.OnSelectedClicked -> saveClickEvent()
         }
     }
 
@@ -37,7 +42,11 @@ class GalleryViewModel @Inject constructor(
         reduce { state.copy(image = image) }
     }
 
-    private fun navigateUp() = intent {
+    private fun saveClickEvent() = intent {
+        postSideEffect(GallerySideEffect.NavigateToWrite)
+    }
+
+    private fun onBackClicked() = intent {
         postSideEffect(GallerySideEffect.NavigateUp)
     }
 }

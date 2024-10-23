@@ -9,7 +9,8 @@ import javax.inject.Inject
 
 class DiaryUseCase @Inject constructor(private val repository: DiaryRepository) {
 
-    suspend fun insert(
+    suspend fun insertOrUpdate(
+        id: Long,
         currentDate: LocalDate,
         title: String,
         content: String,
@@ -23,16 +24,24 @@ class DiaryUseCase @Inject constructor(private val repository: DiaryRepository) 
             emotion = emotion,
             imageList = imageList
         )
-        return repository.insert(diary)
+        if (id == 0L) {
+            repository.insert(diary)
+        } else {
+            repository.update(id, diary)
+        }
     }
 
-    fun getDiary(id: Long): Flow<Diary> {
+    suspend fun getDiary(id: Long): Flow<Diary> {
         return repository.getDiary(id)
     }
 
-    fun getDiariesForMonth(currentDate: LocalDate): Flow<List<Diary>> {
+    suspend fun getDiariesForMonth(currentDate: LocalDate): Flow<List<Diary>> {
         val (startOfMonth, endOfMonth) = getStartAndEndOfMonth(currentDate)
         return repository.getDiariesForMonth(startOfMonth, endOfMonth)
+    }
+
+    suspend fun deleteDiary(id: Long) {
+        repository.deleteDiary(id)
     }
 
     private fun getStartAndEndOfMonth(date: LocalDate): Pair<Long, Long> {

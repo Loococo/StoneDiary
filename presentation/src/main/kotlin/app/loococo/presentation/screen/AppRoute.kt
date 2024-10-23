@@ -2,22 +2,21 @@ package app.loococo.presentation.screen
 
 import kotlinx.serialization.Serializable
 
-@Serializable
 sealed class AppRoute {
     @Serializable
-    object Home
+    data object Home
 
     @Serializable
-    object Write {
+    data object Write {
         @Serializable
-        object Emotion
+        data class Emotion(val id: Long = 0L)
 
         @Serializable
-        data class Content(val emotion: String)
+        data class Content(val emotion: String, val id: Long = 0L)
     }
 
     @Serializable
-    object Gallery
+    data object Gallery
 
     @Serializable
     data class Detail(val id: Long)

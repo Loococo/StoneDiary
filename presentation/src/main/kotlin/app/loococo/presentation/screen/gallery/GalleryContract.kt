@@ -6,10 +6,11 @@ data class GalleryState(
 
 sealed class GallerySideEffect {
     data object NavigateUp : GallerySideEffect()
+    data object NavigateToWrite : GallerySideEffect()
 }
 
 sealed class GalleryEvent {
-    data object SaveClickEvent : GalleryEvent()
-    data class ImageClickEvent(val image: String) : GalleryEvent()
-    data object BackClickEvent : GalleryEvent()
+    data object OnSelectedClicked : GalleryEvent()
+    data class OnImageClicked(val image: String) : GalleryEvent()
+    data object OnBackClicked : GalleryEvent()
 }

@@ -19,19 +19,16 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun StoneDiaryTitleTextField(text: String, onValueChange: (String) -> Unit) {
-    var value by remember { mutableStateOf(text) }
-
     BasicTextField(
-        value = value,
+        value = text,
         onValueChange = { newTextState ->
             if (newTextState.lines().size <= 2) {
-                value = newTextState
-                onValueChange(value)
+                onValueChange(newTextState)
             }
         },
         modifier = Modifier.fillMaxWidth(),
         decorationBox = { innerTextField ->
-            if (value.isEmpty()) {
+            if (text.isEmpty()) {
                 Text(
                     text = "제목을 입력해 주세요.",
                     color = Color.Gray,
@@ -59,17 +56,14 @@ fun StoneDiaryTitleTextField(text: String, onValueChange: (String) -> Unit) {
 
 @Composable
 fun StoneDiaryContentTextField(text: String, onValueChange: (String) -> Unit) {
-    var value by remember { mutableStateOf(text) }
-
     BasicTextField(
-        value = value,
+        value = text,
         onValueChange = { newTextState ->
-            value = newTextState
-            onValueChange(value)
+            onValueChange(newTextState)
         },
         modifier = Modifier.fillMaxWidth(),
         decorationBox = { innerTextField ->
-            if (value.isEmpty()) {
+            if (text.isEmpty()) {
                 Text(
                     text = "오늘의 일기를 작성해 주세요.\n" +
                             "아래 사진을 추가할 수 있습니다.",

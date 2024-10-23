@@ -1,5 +1,6 @@
 package app.loococo.presentation.screen.write.content
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import app.loococo.presentation.screen.AppRoute
 import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
@@ -27,9 +29,11 @@ class ContentViewModel @Inject constructor(
     override val container = container<ContentState, ContentSideEffect>(ContentState())
 
     private val emotion = savedStateHandle.toRoute<AppRoute.Write.Content>().emotion
+    private val id = savedStateHandle.toRoute<AppRoute.Write.Content>().id
 
     init {
         onEventReceived(ContentEvent.OnEmotionUpdated(emotion))
+        onEventReceived(ContentEvent.OnDiaryIdUpdated(id))
     }
 
     fun onEventReceived(event: ContentEvent) {
@@ -43,6 +47,24 @@ class ContentViewModel @Inject constructor(
             is ContentEvent.OnImageAdded -> onImageAdded(event.image)
             ContentEvent.OnSaveClicked -> onSaveClicked()
             is ContentEvent.OnTitleUpdated -> onTitleUpdated(event.title)
+            is ContentEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
+        }
+    }
+
+    private fun onDiaryIdUpdated(id: Long) = intent {
+        if (id != 0L) {
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.getDiary(id).collectLatest { diary ->
+                    reduce {
+                        state.copy(
+                            id = id,
+                            title = diary.title,
+                            content = diary.content,
+                            imageList = diary.imageList.toMutableList().ifEmpty { mutableListOf() }
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -67,8 +89,10 @@ class ContentViewModel @Inject constructor(
             postSideEffect(ContentSideEffect.ShowToast(R.string.write_content_waring))
             return@intent
         }
+
         viewModelScope.launch(Dispatchers.IO) {
-            useCase.insert(
+            useCase.insertOrUpdate(
+                state.id,
                 state.currentDate,
                 state.title,
                 state.content,

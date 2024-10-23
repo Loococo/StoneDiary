@@ -30,6 +30,7 @@ fun StoneDiaryNavHost(
         )
         detailScreen(
             navigateToHome = navController::navigateToHome,
+            navigateToWrite = navController::navigateToEmotion,
             navigateUp = navController::navigateUp
         )
         writeScreen(
@@ -39,7 +40,8 @@ fun StoneDiaryNavHost(
             navigateUp = navController::navigateUp
         )
         galleryScreen(
-            navigateUpToWrite = navController::navigateUpToWrite
+            navigateUpToWrite = navController::navigateUpToWrite,
+            navigateUp = navController::navigateUp
         )
     }
 }

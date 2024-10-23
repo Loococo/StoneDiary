@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.loococo.presentation.R
-import app.loococo.presentation.component.HeightSpacer
 import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.component.StoneDiaryTitleText
 import app.loococo.presentation.theme.Black
@@ -33,18 +32,18 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-fun EmotionRoute(navigateToWrite: (String) -> Unit, navigateUp: () -> Unit) {
+fun EmotionRoute(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit) {
     EmotionScreen(navigateToWrite, navigateUp)
 }
 
 @Composable
-fun EmotionScreen(navigateToWrite: (String) -> Unit, navigateUp: () -> Unit) {
+fun EmotionScreen(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit) {
     val viewModel: EmotionViewModel = hiltViewModel()
     val state by viewModel.collectAsState()
 
     viewModel.collectSideEffect {
         when (it) {
-            EmotionSideEffect.NavigateToWrite -> navigateToWrite(state.emotion)
+            EmotionSideEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
             EmotionSideEffect.NavigateUp -> navigateUp()
         }
     }

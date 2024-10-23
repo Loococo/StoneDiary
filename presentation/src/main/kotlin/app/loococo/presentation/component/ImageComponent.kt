@@ -6,19 +6,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import app.loococo.presentation.R
 import coil.compose.AsyncImage
 import coil.imageLoader
+import coil.request.ImageRequest
 
 @Composable
 fun StoneDiaryAsyncImage(image: Uri) {
-    val imageLoader = LocalContext.current.imageLoader
+    val context = LocalContext.current
+    val imageLoader = context.imageLoader
 
     AsyncImage(
-        model = image,
+        model = ImageRequest.Builder(context)
+            .data(image)
+            .placeholder(R.drawable.placeholder)
+            .error(R.drawable.placeholder)
+            .build(),
         contentDescription = "image",
         imageLoader = imageLoader,
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxSize()
     )
 }
 

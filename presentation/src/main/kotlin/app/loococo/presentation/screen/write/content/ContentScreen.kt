@@ -1,6 +1,7 @@
 package app.loococo.presentation.screen.write.content
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -78,7 +79,9 @@ fun ContentScreen(
     val viewModel: ContentViewModel = hiltViewModel()
 
     LaunchedEffect(image) {
-        viewModel.onEventReceived(ContentEvent.OnImageAdded(image))
+        if (image.isNotBlank()) {
+            viewModel.onEventReceived(ContentEvent.OnImageAdded(image))
+        }
     }
 
     val state by viewModel.collectAsState()
@@ -230,8 +233,8 @@ fun ContentPhoto(
         item {
             PhotoAddItem(context, onEventSent)
         }
-        items(imageList.toList()) {
-            PhotoItem(it, onEventSent)
+        items(imageList) { imageUrl ->
+            PhotoItem(imageUrl, onEventSent)
         }
     }
 }
@@ -275,6 +278,7 @@ fun PhotoAddItem(context: Context, onEventSent: (event: ContentEvent) -> Unit) {
             onEventSent(ContentEvent.OnAddImageClicked)
         }
     }
+
     Box(
         modifier = Modifier
             .fillMaxSize()

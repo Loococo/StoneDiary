@@ -23,28 +23,26 @@ fun handlePermissionResult(permissions: Map<String, Boolean>, onSuccess: () -> U
     }
 }
 
+fun getPermissionsToRequest(): Array<String> {
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        }
+        else -> {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+    }
+}
+
 fun handleOnClick(
     context: Context,
     permissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>,
     onSuccess: () -> Unit
 ) {
-    val permissionsToRequest = if (Build.VERSION.SDK_INT >= 33) {
-        arrayOf(
-            Manifest.permission.READ_MEDIA_IMAGES,
-            Manifest.permission.READ_MEDIA_VIDEO
-        )
-    } else {
-        arrayOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
-    }
+    val permissionsToRequest = getPermissionsToRequest()
 
     if (permissionsToRequest.all {
-            ContextCompat.checkSelfPermission(
-                context,
-                it
-            ) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }) {
         onSuccess()
     } else {

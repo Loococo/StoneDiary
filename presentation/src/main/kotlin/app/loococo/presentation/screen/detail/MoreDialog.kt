@@ -1,16 +1,17 @@
-package app.loococo.presentation.screen.write.content
+package app.loococo.presentation.screen.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -20,35 +21,40 @@ import app.loococo.presentation.component.StoneDiaryTitleText
 import app.loococo.presentation.theme.White
 
 @Composable
-fun DeleteImageDialog(
+fun MoreDialog(
     visible: Boolean = false,
-    onImageDeleted: () -> Unit,
-    onDismissRequest: () -> Unit
+    currentDate: Boolean = false,
+    onDismissRequest: () -> Unit,
+    onModify: () -> Unit,
+    onDelete: () -> Unit
 ) {
     if (visible) {
         Dialog(onDismissRequest = onDismissRequest) {
             Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .background(White, RoundedCornerShape(10.dp)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                StoneDiaryTitleText(
-                    text = stringResource(R.string.delete_image_waring),
-                    modifier = Modifier.padding(30.dp)
+                MoreDialogBox(
+                    onClick = {
+                        onDelete()
+                        onDismissRequest()
+                    },
+                    text = R.string.delete
                 )
-                Row {
-                    DeleteImageDialogBox(
-                        onClick = {
-                            onDismissRequest()
-                        },
-                        text = R.string.cancel
+
+                if (currentDate) {
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = Color.Gray
                     )
-                    DeleteImageDialogBox(
+                    MoreDialogBox(
                         onClick = {
-                            onImageDeleted()
+                            onModify()
                             onDismissRequest()
                         },
-                        text = R.string.delete
+                        text = R.string.modify
                     )
                 }
             }
@@ -57,10 +63,10 @@ fun DeleteImageDialog(
 }
 
 @Composable
-fun RowScope.DeleteImageDialogBox(onClick: () -> Unit, text: Int) {
+fun MoreDialogBox(onClick: () -> Unit, text: Int) {
     Box(
         modifier = Modifier
-            .weight(1f)
+            .fillMaxWidth()
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

@@ -14,56 +14,53 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import app.loococo.presentation.component.CircularProgressBar
 import app.loococo.presentation.component.StoneDiaryAsyncImage
 import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.utils.StoneDiaryIcons
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
-internal fun GalleryRoute(navigateUpToWrite: (String) -> Unit) {
-    GalleryScreen(navigateUpToWrite)
+internal fun GalleryRoute(navigateUpToWrite: (String) -> Unit, navigateUp: () -> Unit) {
+    GalleryScreen(navigateUpToWrite, navigateUp)
 }
 
 @Composable
-fun GalleryScreen(navigateUpToWrite: (String) -> Unit) {
+fun GalleryScreen(navigateUpToWrite: (String) -> Unit, navigateUp: () -> Unit) {
     val viewModel: GalleryViewModel = hiltViewModel()
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-    val sideEffectFlow = viewModel.container.sideEffectFlow
 
-    LaunchedEffect(sideEffectFlow) {
-        sideEffectFlow.collect { sideEffect ->
-            when (sideEffect) {
-                GallerySideEffect.NavigateUp -> navigateUpToWrite(state.image)
-            }
+    val state by viewModel.collectAsState()
+
+    viewModel.collectSideEffect {
+        when (it) {
+            GallerySideEffect.NavigateUp -> navigateUp()
+            GallerySideEffect.NavigateToWrite -> navigateUpToWrite(state.image)
         }
     }
 
     val lazyPagingItems = viewModel.imagePager.collectAsLazyPagingItems()
 
-    LaunchedEffect(lazyPagingItems.loadState) {
-        if (lazyPagingItems.loadState.refresh is LoadState.NotLoading && lazyPagingItems.itemCount > 0) {
-            lazyPagingItems[0]?.let { firstImageUri ->
-                viewModel.handleIntent(GalleryEvent.ImageClickEvent(firstImageUri))
-            }
-        }
-    }
-
     Column(modifier = Modifier.fillMaxSize()) {
-        GalleryHeader(onEventSent = viewModel::handleIntent)
+        GalleryHeader(onEventSent = viewModel::onEventReceived)
         SelectedImage(Uri.parse(state.image))
         ImageGrid(
             lazyPagingItems = lazyPagingItems,
-            onEventSent = viewModel::handleIntent
+            onEventSent = viewModel::onEventReceived
         )
     }
+
+
+    val isLoading = lazyPagingItems.loadState.refresh is LoadState.Loading ||
+            lazyPagingItems.loadState.append is LoadState.Loading
+    CircularProgressBar(isLoading)
 }
 
 @Composable
@@ -78,14 +75,14 @@ fun GalleryHeader(onEventSent: (event: GalleryEvent) -> Unit) {
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
-            onClick = { onEventSent(GalleryEvent.BackClickEvent) }
+            onClick = { onEventSent(GalleryEvent.OnBackClicked) }
         )
 
         StoneDiaryNavigationButton(
             size = 35.dp,
             icon = StoneDiaryIcons.Check,
             description = "ok",
-            onClick = { onEventSent(GalleryEvent.SaveClickEvent) }
+            onClick = { onEventSent(GalleryEvent.OnSelectedClicked) }
         )
     }
 }
@@ -111,18 +108,6 @@ fun ImageGrid(
                 ImageItem(uri, onEventSent)
             }
         }
-
-        lazyPagingItems.apply {
-            when (loadState.append) {
-                is LoadState.Loading -> {
-                }
-
-                is LoadState.Error -> {
-                }
-
-                else -> Unit
-            }
-        }
     }
 }
 
@@ -132,7 +117,7 @@ fun ImageItem(uri: String, onEventSent: (event: GalleryEvent) -> Unit) {
         modifier = Modifier
             .padding(2.dp)
             .aspectRatio(1f)
-            .clickable { onEventSent(GalleryEvent.ImageClickEvent(uri)) }
+            .clickable { onEventSent(GalleryEvent.OnImageClicked(uri)) }
     ) {
         StoneDiaryAsyncImage(uri)
     }
