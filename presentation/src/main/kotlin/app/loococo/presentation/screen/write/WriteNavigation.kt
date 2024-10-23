@@ -2,38 +2,38 @@ package app.loococo.presentation.screen.write
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import app.loococo.presentation.screen.AppRoute
 import app.loococo.presentation.screen.write.content.ContentRoute
 import app.loococo.presentation.screen.write.emotion.EmotionRoute
 
-const val writeRoute = "write"
-const val emotionRoute = "emotion"
-const val contentRoute = "content"
-
-fun NavGraphBuilder.writeScreen(navigateToWrite: (String) -> Unit, navigateToHome: () -> Unit, navigateUp: () -> Unit) {
-    navigation(startDestination = emotionRoute, route = writeRoute) {
-        composable(route = emotionRoute) {
+fun NavGraphBuilder.writeScreen(
+    navigateToWrite: (String) -> Unit,
+    navigateToHome: () -> Unit,
+    navigateToGallery: () -> Unit,
+    navigateUp: () -> Unit
+) {
+    navigation<AppRoute.Write>(startDestination = AppRoute.Write.Emotion) {
+        composable<AppRoute.Write.Emotion> {
             EmotionRoute(navigateToWrite, navigateUp)
         }
-
-        composable(
-            route = "$contentRoute/{emotion}",
-            arguments = listOf(navArgument("emotion") { type = NavType.StringType })
-        ) { entry ->
-            val emotion = entry.arguments?.getString("emotion") ?: ""
-            ContentRoute(emotion, navigateToHome, navigateUp)
+        composable<AppRoute.Write.Content> { entry ->
+            val image = entry.savedStateHandle.get<String>("image") ?: ""
+            ContentRoute(image, navigateToHome, navigateToGallery, navigateUp)
         }
     }
-
 }
 
 fun NavController.navigateToEmotion() {
-    this.navigate(emotionRoute)
+    this.navigate(AppRoute.Write.Emotion)
 }
 
 fun NavController.navigateToWrite(emotion: String) {
-    this.navigate("$contentRoute/$emotion")
+    this.navigate(AppRoute.Write.Content(emotion))
+}
+
+fun NavController.navigateUpToWrite(image: String) {
+    this.previousBackStackEntry?.savedStateHandle?.set("image", image)
+    this.popBackStack()
 }

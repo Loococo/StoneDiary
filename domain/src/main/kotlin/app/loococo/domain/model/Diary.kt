@@ -9,7 +9,8 @@ data class Diary(
     val date: Long = 0L,
     val title: String = "",
     val content: String = "",
-    val emotion: String = ""
+    val emotion: String = "",
+    val imageList: List<String> = emptyList()
 ) {
     val localDate: LocalDate
         get() = Instant.ofEpochMilli(date)

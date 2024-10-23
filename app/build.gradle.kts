@@ -42,7 +42,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
@@ -72,4 +72,6 @@ dependencies {
     implementation(libs.room.ktx)
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.room.compiler)
+
+    implementation (libs.coil.compose)
 }

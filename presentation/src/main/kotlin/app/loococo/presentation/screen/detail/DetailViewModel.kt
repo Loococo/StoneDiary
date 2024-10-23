@@ -1,9 +1,12 @@
 package app.loococo.presentation.screen.detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import app.loococo.domain.usecase.DiaryUseCase
 import app.loococo.presentation.R
+import app.loococo.presentation.screen.AppRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -16,24 +19,33 @@ import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(private val useCase: DiaryUseCase) :
+class DetailViewModel @Inject constructor(
+    private val useCase: DiaryUseCase,
+    savedStateHandle: SavedStateHandle
+) :
     ContainerHost<DetailState, DetailSideEffect>, ViewModel() {
     override val container = container<DetailState, DetailSideEffect>(DetailState())
 
-    fun handleIntent(intent: DetailEvent) {
-        when (intent) {
-            is DetailEvent.DiaryIdEvent -> loadDiaryData(intent.id)
-            DetailEvent.BackClickEvent -> navigateUp()
+    private val id = savedStateHandle.toRoute<AppRoute.Detail>().id
+
+    init {
+        onEventReceived(DetailEvent.OnDiaryIdUpdated(id))
+    }
+
+    fun onEventReceived(event: DetailEvent) {
+        when (event) {
+            is DetailEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
+            DetailEvent.OnBackClicked -> onBackClicked()
         }
     }
 
-    private fun navigateUp() = intent {
+    private fun onBackClicked() = intent {
         postSideEffect(DetailSideEffect.NavigateUp)
     }
 
-    private fun loadDiaryData(id: Long) = intent {
+    private fun onDiaryIdUpdated(id: Long) = intent {
         if (id == 0L) {
-            postSideEffect(DetailSideEffect.Toast(R.string.load_diary_data_waring))
+            postSideEffect(DetailSideEffect.ShowToast(R.string.load_diary_data_waring))
             postSideEffect(DetailSideEffect.NavigateToHome)
             return@intent
         }

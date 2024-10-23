@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.loococo.domain.model.Diary
 import app.loococo.presentation.R
 import app.loococo.presentation.component.StoneDiaryBodyText
@@ -35,6 +33,8 @@ import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import app.loococo.presentation.utils.StoneDiaryIcons
 import app.loococo.presentation.utils.formattedHomeDate
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 internal fun HomeRoute(
@@ -50,27 +50,24 @@ fun HomeScreen(
     navigateToWrite: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-    val sideEffectFlow = viewModel.container.sideEffectFlow
+    val state by viewModel.collectAsState()
 
-    LaunchedEffect(sideEffectFlow) {
-        sideEffectFlow.collect { sideEffect ->
-            when (sideEffect) {
-                is HomeSideEffect.NavigateToDetail -> navigateToDetail(sideEffect.id)
-                HomeSideEffect.NavigateToWrite -> navigateToWrite()
-            }
+    viewModel.collectSideEffect {
+        when (it) {
+            is HomeSideEffect.NavigateToDetail -> navigateToDetail(it.id)
+            HomeSideEffect.NavigateToWrite -> navigateToWrite()
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         DiaryHeader(
             currentDate = state.currentDate.formattedHomeDate(),
-            onEventSent = viewModel::handleIntent
+            onEventSent = viewModel::onEventReceived
         )
         DiaryList(
             diaryList = state.diaryList,
             todayDiaryState = state.todayDiaryState,
-            onEventSent = viewModel::handleIntent
+            onEventSent = viewModel::onEventReceived
         )
     }
 }
@@ -108,7 +105,7 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Previous",
-            onClick = { onEventSent(HomeEvent.PreviousMonthClickEvent) }
+            onClick = { onEventSent(HomeEvent.OnPreviousMonthClicked) }
         )
         StoneDiaryHeadlineText(
             text = currentDate,
@@ -118,7 +115,7 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowRight,
             description = "Next",
-            onClick = { onEventSent(HomeEvent.NextMonthClickEvent) }
+            onClick = { onEventSent(HomeEvent.OnNextMonthClicked) }
         )
     }
 }
@@ -127,7 +124,7 @@ fun DiaryHeader(
 fun IncompleteDiaryEntry(onEventSent: (event: HomeEvent) -> Unit) {
     StoneDiaryListItem(
         modifier = Modifier
-            .clickable { onEventSent(HomeEvent.WriteClickEvent) }
+            .clickable { onEventSent(HomeEvent.OnWriteClicked) }
     ) {
         StoneDiaryBodyText(
             text = stringResource(R.string.incomplete_diary),
@@ -162,9 +159,9 @@ fun CompletedDiaryEntry() {
 fun DiaryEntryItem(item: Diary, onEventSent: (event: HomeEvent) -> Unit) {
     StoneDiaryListItem(
         modifier = Modifier
-            .clickable { onEventSent(HomeEvent.DetailClickEvent(item.id)) }
+            .clickable { onEventSent(HomeEvent.OnDetailClicked(item.id)) }
     ) {
-        StoneDiaryLabelText(text = stringResource(R.string.month, item.localDate.monthValue))
+        StoneDiaryLabelText(text = stringResource(R.string.month, item.localDate.dayOfMonth))
         VerticalDivider(
             thickness = 1.dp,
             color = Color.Gray,

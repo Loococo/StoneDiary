@@ -14,18 +14,19 @@ import app.loococo.presentation.theme.StoneDiaryTheme
 fun StoneDiaryApp(
     appState: StoneDiaryAppState = rememberStoneDiaryAppState()
 ) {
-    StoneDiaryTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = MaterialTheme.colorScheme.background,
-        ) { padding ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                StoneDiaryNavHost(appState)
+        StoneDiaryTheme {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.background,
+            ) { padding ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                ) {
+                    StoneDiaryNavHost(appState)
+                }
+
             }
-        }
     }
 }

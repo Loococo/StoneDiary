@@ -27,12 +27,12 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
         loadDiariesForMonth()
     }
 
-    fun handleIntent(intent: HomeEvent) {
-        when (intent) {
-            HomeEvent.PreviousMonthClickEvent -> updateMonth(-1)
-            HomeEvent.NextMonthClickEvent -> updateMonth(1)
-            is HomeEvent.DetailClickEvent -> navigateToDetail(intent.id)
-            HomeEvent.WriteClickEvent -> navigateToWrite()
+    fun onEventReceived(event: HomeEvent) {
+        when (event) {
+            HomeEvent.OnPreviousMonthClicked -> updateMonth(-1)
+            HomeEvent.OnNextMonthClicked -> updateMonth(1)
+            is HomeEvent.OnDetailClicked -> navigateToDetail(event.id)
+            HomeEvent.OnWriteClicked -> navigateToWrite()
         }
     }
 
@@ -52,6 +52,7 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
     private fun loadDiariesForMonth() = intent {
         val currentMonthStart = state.currentDate.withDayOfMonth(1)
 
+        // 캐시된 다이어리 목록에서 현재 월의 다이어리를 가져옵니다.
         state.cachedDiaryList[currentMonthStart]?.let { cachedList ->
             updateDiaryState(cachedList)
             return@intent
@@ -64,6 +65,8 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
         try {
             useCase.getDiariesForMonth(state.currentDate).collect { diaryList ->
                 updateDiaryState(diaryList)
+
+                // 캐시에 현재 월의 다이어리 목록 추가
                 reduce {
                     state.copy(
                         cachedDiaryList = state.cachedDiaryList + (state.currentDate.withDayOfMonth(
@@ -73,14 +76,17 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
                 }
             }
         } catch (e: Exception) {
+            // 에러 발생 시 다이어리 목록 초기화 및 상태 업데이트
             reduce { state.copy(diaryList = emptyList(), todayDiaryState = TodayDiaryState.Hide) }
+            // 에러 로그 추가 (선택 사항)
+            // Log.e("HomeScreenViewModel", "Error fetching diaries for current month", e)
         }
     }
 
     private fun updateDiaryState(diaryList: List<Diary>) = intent {
-        val todayDiaryExists = diaryList.any {
-            it.date == currentDate && isSameMonthAsToday(state.currentDate)
-        }
+        val todayDiaryExists =
+            diaryList.any { it.date == currentDate && isSameMonthAsToday(state.currentDate) }
+
         reduce {
             state.copy(
                 diaryList = diaryList,

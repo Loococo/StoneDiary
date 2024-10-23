@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     kotlin("kapt")
 }
 
@@ -38,7 +39,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
@@ -62,4 +63,9 @@ dependencies {
 
     implementation(libs.orbit.viewmodel)
     implementation(libs.orbit.compose)
+
+    implementation (libs.androidx.paging.compose )
+    implementation (libs.androidx.paging.runtime)
+    implementation (libs.coil.compose)
+    implementation(libs.kotlinx.serialization.json)
 }

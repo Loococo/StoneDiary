@@ -8,18 +8,26 @@ data class ContentState(
     val currentDate: LocalDate = LocalDate.now(),
     val title: String = "",
     val content: String = "",
+    val imageList: MutableList<String> = mutableListOf(),
+    val selectedImage: String = ""
 )
 
 sealed class ContentSideEffect {
     data object NavigateToHome : ContentSideEffect()
+    data object NavigateToGallery : ContentSideEffect()
     data object NavigateUp : ContentSideEffect()
-    data class Toast(val res: Int) : ContentSideEffect()
+    data object DeleteImageDialog : ContentSideEffect()
+    data class ShowToast(val res: Int) : ContentSideEffect()
 }
 
 sealed class ContentEvent {
-    data class EmotionEvent(val emotion: String) : ContentEvent()
-    data class TitleChangedEvent(val title: String) : ContentEvent()
-    data class ContentChangedEvent(val content: String) : ContentEvent()
-    data object SaveClickEvent : ContentEvent()
-    data object BackClickEvent : ContentEvent()
+    data class OnEmotionUpdated(val emotion: String) : ContentEvent()
+    data class OnTitleUpdated(val title: String) : ContentEvent()
+    data class OnContentUpdated(val content: String) : ContentEvent()
+    data class OnImageAdded(val image: String) : ContentEvent()
+    data class OnDeleteImageClicked(val image: String) : ContentEvent()
+    data object OnConfirmDeleteImage : ContentEvent()
+    data object OnSaveClicked : ContentEvent()
+    data object OnAddImageClicked : ContentEvent()
+    data object OnBackClicked : ContentEvent()
 }

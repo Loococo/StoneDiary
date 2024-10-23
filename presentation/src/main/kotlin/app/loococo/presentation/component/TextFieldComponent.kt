@@ -18,20 +18,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun StoneDiaryTitleTextField(onValueChange: (String) -> Unit) {
-    var text by remember { mutableStateOf("") }
+fun StoneDiaryTitleTextField(text: String, onValueChange: (String) -> Unit) {
+    var value by remember { mutableStateOf(text) }
 
     BasicTextField(
-        value = text,
+        value = value,
         onValueChange = { newTextState ->
             if (newTextState.lines().size <= 2) {
-                text = newTextState
-                onValueChange(text)
+                value = newTextState
+                onValueChange(value)
             }
         },
         modifier = Modifier.fillMaxWidth(),
         decorationBox = { innerTextField ->
-            if (text.isEmpty()) {
+            if (value.isEmpty()) {
                 Text(
                     text = "제목을 입력해 주세요.",
                     color = Color.Gray,
@@ -58,18 +58,18 @@ fun StoneDiaryTitleTextField(onValueChange: (String) -> Unit) {
 }
 
 @Composable
-fun StoneDiaryContentTextField(onValueChange: (String) -> Unit) {
-    var text by remember { mutableStateOf("") }
+fun StoneDiaryContentTextField(text: String, onValueChange: (String) -> Unit) {
+    var value by remember { mutableStateOf(text) }
 
     BasicTextField(
-        value = text,
+        value = value,
         onValueChange = { newTextState ->
-            text = newTextState
-            onValueChange(text)
+            value = newTextState
+            onValueChange(value)
         },
         modifier = Modifier.fillMaxWidth(),
         decorationBox = { innerTextField ->
-            if (text.isEmpty()) {
+            if (value.isEmpty()) {
                 Text(
                     text = "오늘의 일기를 작성해 주세요.\n" +
                             "아래 사진을 추가할 수 있습니다.",
@@ -83,10 +83,10 @@ fun StoneDiaryContentTextField(onValueChange: (String) -> Unit) {
             }
             innerTextField()
         },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            imeAction = ImeAction.Done,
-            keyboardType = KeyboardType.Text
-        ),
+//        keyboardOptions = KeyboardOptions.Default.copy(
+//            imeAction = ImeAction.Default,
+//            keyboardType = KeyboardType.Text
+//        ),
         textStyle = TextStyle(
             fontSize = 18.sp,
             color = Color.Black,

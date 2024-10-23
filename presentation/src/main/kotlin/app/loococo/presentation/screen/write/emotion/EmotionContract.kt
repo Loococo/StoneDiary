@@ -9,6 +9,6 @@ sealed class EmotionSideEffect {
 }
 
 sealed class EmotionEvent {
-    data class EmotionClickEvent(val emotion: String) : EmotionEvent()
-    data object BackClickEvent : EmotionEvent()
+    data class OnEmotionClicked(val emotion: String) : EmotionEvent()
+    data object OnBackClicked : EmotionEvent()
 }
