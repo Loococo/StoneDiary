@@ -9,7 +9,7 @@ import app.loococo.domain.repository.ImageRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ImageRepositoryImpl @Inject constructor(private val application: Application) : ImageRepository {
+class ImageRepositoryImpl @Inject constructor(application: Application) : ImageRepository {
 
     private val imagePagingSource = ImagePagingSource(application)
 
@@ -21,6 +21,6 @@ class ImageRepositoryImpl @Inject constructor(private val application: Applicati
     }
 
     override fun getFirstImage(): String {
-        return imagePagingSource.getFirstImage() // 첫 번째 이미지 반환
+        return imagePagingSource.getFirstImage()
     }
 }

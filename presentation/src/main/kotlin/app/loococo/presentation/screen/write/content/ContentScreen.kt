@@ -1,7 +1,6 @@
 package app.loococo.presentation.screen.write.content
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.loococo.presentation.component.CircularProgressBar
 import app.loococo.presentation.component.HeightSpacer
 import app.loococo.presentation.component.StoneDiaryAsyncImage
 import app.loococo.presentation.component.StoneDiaryContentTextField
@@ -47,8 +47,8 @@ import app.loococo.presentation.theme.Black
 import app.loococo.presentation.theme.Gray
 import app.loococo.presentation.theme.White
 import app.loococo.presentation.utils.StoneDiaryIcons
+import app.loococo.presentation.utils.checkPermission
 import app.loococo.presentation.utils.formattedDateWrite
-import app.loococo.presentation.utils.handleOnClick
 import app.loococo.presentation.utils.handlePermissionResult
 import app.loococo.presentation.utils.rememberPermissionLauncher
 import org.orbitmvi.orbit.compose.collectAsState
@@ -129,6 +129,7 @@ fun ContentScreen(
             viewModel.onEventReceived(ContentEvent.OnConfirmDeleteImage)
         }
     )
+    CircularProgressBar(state.isLoading)
 }
 
 @Composable
@@ -290,7 +291,7 @@ fun PhotoAddItem(context: Context, onEventSent: (event: ContentEvent) -> Unit) {
                 .size(100.dp)
                 .background(Gray, RoundedCornerShape(8.dp))
                 .clickable {
-                    handleOnClick(context, permissionLauncher) {
+                    checkPermission(context, permissionLauncher) {
                         onEventSent(ContentEvent.OnAddImageClicked)
                     }
                 },

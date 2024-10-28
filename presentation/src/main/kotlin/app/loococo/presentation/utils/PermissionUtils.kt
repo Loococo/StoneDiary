@@ -1,13 +1,16 @@
 package app.loococo.presentation.utils
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 @Composable
@@ -34,7 +37,7 @@ fun getPermissionsToRequest(): Array<String> {
     }
 }
 
-fun handleOnClick(
+fun checkPermission(
     context: Context,
     permissionLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>,
     onSuccess: () -> Unit
@@ -46,6 +49,12 @@ fun handleOnClick(
         }) {
         onSuccess()
     } else {
-        permissionLauncher.launch(permissionsToRequest)
+        if (permissionsToRequest.any { permission ->
+                ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, permission)
+            }) {
+            permissionLauncher.launch(permissionsToRequest)
+        } else {
+            Toast.makeText(context, "권한을 직접 설정해야 합니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 }

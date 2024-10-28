@@ -2,8 +2,10 @@ package app.loococo.stonediary.di
 
 import app.loococo.data.repository.DiaryRepositoryImpl
 import app.loococo.data.repository.ImageRepositoryImpl
+import app.loococo.data.repository.ImageSaveRepositoryImpl
 import app.loococo.domain.repository.DiaryRepository
 import app.loococo.domain.repository.ImageRepository
+import app.loococo.domain.repository.ImageSaveRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,4 +19,7 @@ interface RepositoryModule {
 
     @Binds
     fun provideImageRepository(repository: ImageRepositoryImpl): ImageRepository
+
+    @Binds
+    fun provideImageSaveRepository(repository: ImageSaveRepositoryImpl): ImageSaveRepository
 }

@@ -2,6 +2,7 @@ package app.loococo.stonediary.di
 
 import app.loococo.domain.repository.DiaryRepository
 import app.loococo.domain.repository.ImageRepository
+import app.loococo.domain.repository.ImageSaveRepository
 import app.loococo.domain.usecase.DiaryUseCase
 import app.loococo.domain.usecase.ImageUseCase
 import dagger.Module
@@ -16,7 +17,10 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideDiaryUseCase(repository: DiaryRepository): DiaryUseCase = DiaryUseCase(repository)
+    fun provideDiaryUseCase(
+        diaryRepository: DiaryRepository,
+        imageSaveRepository: ImageSaveRepository
+    ): DiaryUseCase = DiaryUseCase(diaryRepository, imageSaveRepository)
 
     @Provides
     @Singleton

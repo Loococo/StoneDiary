@@ -1,17 +1,17 @@
 package app.loococo.presentation.screen.write.content
 
 import app.loococo.presentation.screen.write.emotion.EmotionEnum
-import app.loococo.presentation.screen.write.emotion.EmotionEvent
 import java.time.LocalDate
 
 data class ContentState(
-    val id:Long = 0L,
+    val id: Long = 0L,
     val emotion: EmotionEnum = EmotionEnum.HAPPY,
     val currentDate: LocalDate = LocalDate.now(),
     val title: String = "",
     val content: String = "",
     val imageList: MutableList<String> = mutableListOf(),
-    val selectedImage: String = ""
+    val selectedImage: String = "",
+    val isLoading: Boolean = false
 )
 
 sealed class ContentSideEffect {

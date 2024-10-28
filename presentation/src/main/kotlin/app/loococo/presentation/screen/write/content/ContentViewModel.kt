@@ -1,6 +1,5 @@
 package app.loococo.presentation.screen.write.content
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
@@ -90,17 +90,22 @@ class ContentViewModel @Inject constructor(
             return@intent
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            useCase.insertOrUpdate(
-                state.id,
-                state.currentDate,
-                state.title,
-                state.content,
-                state.emotion.name,
-                state.imageList
-            )
+        reduce { state.copy(isLoading = true) }
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                useCase.insertOrUpdate(
+                    state.id,
+                    state.currentDate,
+                    state.title,
+                    state.content,
+                    state.emotion.name,
+                    state.imageList
+                )
+            }
+            postSideEffect(ContentSideEffect.NavigateToHome)
+
+            reduce { state.copy(isLoading = false) }
         }
-        postSideEffect(ContentSideEffect.NavigateToHome)
     }
 
     private fun onEmotionUpdated(emotion: String) = intent {

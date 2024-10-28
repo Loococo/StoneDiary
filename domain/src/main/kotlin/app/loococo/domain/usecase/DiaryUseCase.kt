@@ -2,12 +2,16 @@ package app.loococo.domain.usecase
 
 import app.loococo.domain.model.Diary
 import app.loococo.domain.repository.DiaryRepository
+import app.loococo.domain.repository.ImageSaveRepository
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 
-class DiaryUseCase @Inject constructor(private val repository: DiaryRepository) {
+class DiaryUseCase @Inject constructor(
+    private val diaryRepository: DiaryRepository,
+    private val imageSaveRepository: ImageSaveRepository
+) {
 
     suspend fun insertOrUpdate(
         id: Long,
@@ -17,31 +21,34 @@ class DiaryUseCase @Inject constructor(private val repository: DiaryRepository) 
         emotion: String,
         imageList: List<String>
     ) {
+        val saveImageList = imageSaveRepository.saveImages(imageList)
+
         val diary = Diary(
             date = currentDate.toEpochMilli(),
             title = title,
             content = content,
             emotion = emotion,
-            imageList = imageList
+            imageList = saveImageList
         )
+
         if (id == 0L) {
-            repository.insert(diary)
+            diaryRepository.insert(diary)
         } else {
-            repository.update(id, diary)
+            diaryRepository.update(id, diary)
         }
     }
 
     suspend fun getDiary(id: Long): Flow<Diary> {
-        return repository.getDiary(id)
+        return diaryRepository.getDiary(id)
     }
 
     suspend fun getDiariesForMonth(currentDate: LocalDate): Flow<List<Diary>> {
         val (startOfMonth, endOfMonth) = getStartAndEndOfMonth(currentDate)
-        return repository.getDiariesForMonth(startOfMonth, endOfMonth)
+        return diaryRepository.getDiariesForMonth(startOfMonth, endOfMonth)
     }
 
     suspend fun deleteDiary(id: Long) {
-        repository.deleteDiary(id)
+        diaryRepository.deleteDiary(id)
     }
 
     private fun getStartAndEndOfMonth(date: LocalDate): Pair<Long, Long> {
