@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ContentViewModel @Inject constructor(
-    private val useCase: DiaryUseCase,
+    private val diaryUseCase: DiaryUseCase,
     savedStateHandle: SavedStateHandle
 ) :
     ContainerHost<ContentState, ContentSideEffect>, ViewModel() {
@@ -54,7 +54,7 @@ class ContentViewModel @Inject constructor(
     private fun onDiaryIdUpdated(id: Long) = intent {
         if (id != 0L) {
             viewModelScope.launch(Dispatchers.IO) {
-                useCase.getDiary(id).collectLatest { diary ->
+                diaryUseCase.getDiary(id).collectLatest { diary ->
                     reduce {
                         state.copy(
                             id = id,
@@ -79,7 +79,7 @@ class ContentViewModel @Inject constructor(
     }
 
     private fun onImageAdded(image: String) = intent {
-        if (image.isBlank()) return@intent
+        if (image.isBlank() || state.imageList.contains(image)) return@intent
         val newImageList = state.imageList.toMutableList().apply { add(image) }
         reduce { state.copy(imageList = newImageList) }
     }
@@ -93,7 +93,7 @@ class ContentViewModel @Inject constructor(
         reduce { state.copy(isLoading = true) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                useCase.insertOrUpdate(
+                diaryUseCase.insertOrUpdate(
                     state.id,
                     state.currentDate,
                     state.title,

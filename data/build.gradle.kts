@@ -45,6 +45,8 @@ dependencies {
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.room.compiler)
 
-    implementation ("androidx.paging:paging-compose:3.3.2" )
+    implementation (libs.androidx.paging.compose )
+
+    implementation(libs.androidx.exifinterface)
 
 }

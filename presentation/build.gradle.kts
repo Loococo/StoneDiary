@@ -59,6 +59,7 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.hilt.viewmodel)
+    implementation(libs.androidx.exifinterface)
     kapt(libs.hilt.compiler)
 
     implementation(libs.orbit.viewmodel)

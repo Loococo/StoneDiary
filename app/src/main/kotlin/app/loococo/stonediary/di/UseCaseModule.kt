@@ -1,10 +1,14 @@
 package app.loococo.stonediary.di
 
 import app.loococo.domain.repository.DiaryRepository
-import app.loococo.domain.repository.ImageRepository
+import app.loococo.domain.repository.GalleryRepository
+import app.loococo.domain.repository.ImageCropRepository
 import app.loococo.domain.repository.ImageSaveRepository
+import app.loococo.domain.usecase.ImageCropUseCase
 import app.loococo.domain.usecase.DiaryUseCase
-import app.loococo.domain.usecase.ImageUseCase
+import app.loococo.domain.usecase.GalleryUseCase
+import app.loococo.domain.usecase.ImageCalculateUesCase
+import app.loococo.domain.usecase.ImageSaveUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,12 +21,21 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideDiaryUseCase(
-        diaryRepository: DiaryRepository,
-        imageSaveRepository: ImageSaveRepository
-    ): DiaryUseCase = DiaryUseCase(diaryRepository, imageSaveRepository)
+    fun provideDiaryUseCase(repository: DiaryRepository): DiaryUseCase = DiaryUseCase(repository)
 
     @Provides
     @Singleton
-    fun provideImageUseCase(repository: ImageRepository): ImageUseCase = ImageUseCase(repository)
+    fun provideGalleryUseCase(repository: GalleryRepository): GalleryUseCase = GalleryUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideImageCropUseCase(repository: ImageCropRepository): ImageCropUseCase = ImageCropUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideImageSaveUseCase(repository: ImageSaveRepository): ImageSaveUseCase = ImageSaveUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideImageCalculateUesCase(): ImageCalculateUesCase = ImageCalculateUesCase()
 }
