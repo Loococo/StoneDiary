@@ -2,16 +2,12 @@ package app.loococo.domain.usecase
 
 import app.loococo.domain.model.Diary
 import app.loococo.domain.repository.DiaryRepository
-import app.loococo.domain.repository.ImageSaveRepository
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 
-class DiaryUseCase @Inject constructor(
-    private val diaryRepository: DiaryRepository,
-    private val imageSaveRepository: ImageSaveRepository
-) {
+class DiaryUseCase @Inject constructor(private val diaryRepository: DiaryRepository) {
 
     suspend fun insertOrUpdate(
         id: Long,
@@ -21,14 +17,12 @@ class DiaryUseCase @Inject constructor(
         emotion: String,
         imageList: List<String>
     ) {
-        val saveImageList = imageSaveRepository.saveImages(imageList)
-
         val diary = Diary(
             date = currentDate.toEpochMilli(),
             title = title,
             content = content,
             emotion = emotion,
-            imageList = saveImageList
+            imageList = imageList
         )
 
         if (id == 0L) {

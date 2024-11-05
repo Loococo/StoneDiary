@@ -22,7 +22,8 @@ fun CircularProgressBar(show: Boolean) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(50.dp),
-                color = Black
+                color = Black,
+                strokeWidth = 10.dp
             )
         }
     }
