@@ -62,21 +62,24 @@ internal fun ContentRoute(
     navigateUp: () -> Unit
 ) {
     ContentScreen(
-        image,
-        navigateToHome,
-        navigateToGallery,
-        navigateUp
+        image = image,
+        navigateToHome = navigateToHome,
+        navigateToGallery = navigateToGallery,
+        navigateUp = navigateUp
     )
 }
 
 @Composable
-fun ContentScreen(
+private fun ContentScreen(
     image: String,
     navigateToHome: () -> Unit,
     navigateToGallery: () -> Unit,
     navigateUp: () -> Unit
 ) {
     val viewModel: ContentViewModel = hiltViewModel()
+    val state by viewModel.collectAsState()
+    val context = LocalContext.current
+    var showDeleteImageDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(image) {
         if (image.isNotBlank()) {
@@ -84,22 +87,14 @@ fun ContentScreen(
         }
     }
 
-    val state by viewModel.collectAsState()
-    val context = LocalContext.current
-
-    var showDeleteImageDialog by rememberSaveable { mutableStateOf(false) }
-
-    viewModel.collectSideEffect {
-        when (it) {
+    viewModel.collectSideEffect { effect ->
+        when (effect) {
             ContentSideEffect.NavigateUp -> navigateUp()
             ContentSideEffect.NavigateToHome -> navigateToHome()
             ContentSideEffect.NavigateToGallery -> navigateToGallery()
-            ContentSideEffect.DeleteImageDialog -> {
-                showDeleteImageDialog = true
-            }
-
+            ContentSideEffect.DeleteImageDialog -> showDeleteImageDialog = true
             is ContentSideEffect.ShowToast -> {
-                Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, effect.res, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -133,74 +128,100 @@ fun ContentScreen(
 }
 
 @Composable
-fun ContentHeader(onEventSent: (event: ContentEvent) -> Unit) {
+private fun ContentHeader(onEventSent: (ContentEvent) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        StoneDiaryNavigationButton(
-            size = 35.dp,
+        NavigationButton(
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
             onClick = { onEventSent(ContentEvent.OnBackClicked) }
         )
-
-        StoneDiaryNavigationButton(
-            size = 35.dp,
+        NavigationButton(
             icon = StoneDiaryIcons.Check,
-            description = "ok",
+            description = "Save",
             onClick = { onEventSent(ContentEvent.OnSaveClicked) }
         )
     }
 }
 
 @Composable
-fun ContentTitle(
+private fun NavigationButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    description: String,
+    onClick: () -> Unit
+) {
+    StoneDiaryNavigationButton(
+        size = 35.dp,
+        icon = icon,
+        description = description,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun ContentTitle(
     emotion: EmotionEnum,
     currentDate: String,
     title: String,
-    onEventSent: (event: ContentEvent) -> Unit
+    onEventSent: (ContentEvent) -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp, 10.dp),
+            .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Box(
-            modifier = Modifier
-                .border(1.dp, Black, RoundedCornerShape(10.dp))
-        ) {
-            Image(
-                painter = painterResource(emotion.resId),
-                contentDescription = "",
-                modifier = Modifier
-                    .size(80.dp)
-                    .padding(10.dp)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, 2.dp)
-        ) {
-            StoneDiaryLabelText(currentDate)
-            StoneDiaryTitleTextField(
-                text = title,
-                onValueChange = { onEventSent(ContentEvent.OnTitleUpdated(it)) }
-            )
-        }
+        EmotionImage(emotion)
+        TitleContent(
+            currentDate = currentDate,
+            title = title,
+            onTitleChange = { onEventSent(ContentEvent.OnTitleUpdated(it)) }
+        )
     }
 }
 
 @Composable
-fun ContentBody(
+private fun EmotionImage(emotion: EmotionEnum) {
+    Box(modifier = Modifier.border(1.dp, Black, RoundedCornerShape(10.dp))) {
+        Image(
+            painter = painterResource(emotion.resId),
+            contentDescription = "Emotion Image",
+            modifier = Modifier
+                .size(80.dp)
+                .padding(10.dp)
+        )
+    }
+}
+
+@Composable
+private fun TitleContent(
+    currentDate: String,
+    title: String,
+    onTitleChange: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, top = 2.dp)
+    ) {
+        StoneDiaryLabelText(currentDate)
+        StoneDiaryTitleTextField(
+            text = title,
+            onValueChange = onTitleChange
+        )
+    }
+}
+
+@Composable
+private fun ContentBody(
     context: Context,
     content: String,
     imageList: MutableList<String>,
-    onEventSent: (event: ContentEvent) -> Unit
+    onEventSent: (ContentEvent) -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -209,12 +230,10 @@ fun ContentBody(
             .verticalScroll(scrollState)
             .padding(20.dp)
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            StoneDiaryContentTextField(
-                text = content,
-                onValueChange = { onEventSent(ContentEvent.OnContentUpdated(it)) }
-            )
-        }
+        StoneDiaryContentTextField(
+            text = content,
+            onValueChange = { onEventSent(ContentEvent.OnContentUpdated(it)) }
+        )
         HeightSpacer(height = 10)
         ContentPhoto(
             context = context,
@@ -225,23 +244,23 @@ fun ContentBody(
 }
 
 @Composable
-fun ContentPhoto(
+private fun ContentPhoto(
     context: Context,
     imageList: MutableList<String>,
-    onEventSent: (event: ContentEvent) -> Unit
+    onEventSent: (ContentEvent) -> Unit
 ) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        items(imageList.asReversed()) { imageUrl ->
+            PhotoItem(imageUrl, onEventSent)
+        }
         item {
             PhotoAddItem(context, onEventSent)
-        }
-        items(imageList) { imageUrl ->
-            PhotoItem(imageUrl, onEventSent)
         }
     }
 }
 
 @Composable
-fun PhotoItem(image: String, onEventSent: (event: ContentEvent) -> Unit) {
+private fun PhotoItem(image: String, onEventSent: (ContentEvent) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -255,25 +274,30 @@ fun PhotoItem(image: String, onEventSent: (event: ContentEvent) -> Unit) {
         ) {
             StoneDiaryAsyncImage(image)
         }
-        Box(
-            modifier = Modifier
-                .offset(x = 80.dp, y = (-10).dp)
-                .size(30.dp)
-                .background(Black, shape = CircleShape)
-                .clickable { onEventSent(ContentEvent.OnDeleteImageClicked(image)) },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = StoneDiaryIcons.Close,
-                contentDescription = null,
-                tint = White
-            )
-        }
+        DeleteButton { onEventSent(ContentEvent.OnDeleteImageClicked(image)) }
     }
 }
 
 @Composable
-fun PhotoAddItem(context: Context, onEventSent: (event: ContentEvent) -> Unit) {
+private fun DeleteButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .offset(x = 80.dp, y = (-10).dp)
+            .size(30.dp)
+            .background(Black, shape = CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = StoneDiaryIcons.Close,
+            contentDescription = "Delete Image",
+            tint = White
+        )
+    }
+}
+
+@Composable
+private fun PhotoAddItem(context: Context, onEventSent: (ContentEvent) -> Unit) {
     val permissionLauncher = rememberPermissionLauncher { permissions ->
         handlePermissionResult(permissions) {
             onEventSent(ContentEvent.OnAddImageClicked)
@@ -299,7 +323,7 @@ fun PhotoAddItem(context: Context, onEventSent: (event: ContentEvent) -> Unit) {
         ) {
             Icon(
                 imageVector = StoneDiaryIcons.Add,
-                contentDescription = null,
+                contentDescription = "Add Image",
                 tint = White
             )
         }
