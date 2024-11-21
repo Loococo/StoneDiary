@@ -55,12 +55,11 @@ class ImageCropRepositoryImpl @Inject constructor(private val application: Appli
     }
 
     private fun bitmapToBase64(bitmap: Bitmap): String {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
-        val byteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+        return ByteArrayOutputStream().use { outputStream ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
+        }
     }
-
 
     private fun loadImage(contentResolver: ContentResolver, imageUri: String): Bitmap {
         return contentResolver.openInputStream(Uri.parse(imageUri))?.use {

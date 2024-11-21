@@ -37,5 +37,4 @@ class ImageCalculateUesCase @Inject constructor() {
             boxSize.width.toFloat() / imageSize.width.toFloat()
         }
     }
-
 }

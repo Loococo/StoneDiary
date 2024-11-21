@@ -1,10 +1,8 @@
-package app.loococo.data.local.model
+package app.loococo.data.local.room.model
 
-import android.util.Log
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import app.loococo.domain.model.Diary
-import kotlin.concurrent.thread
 
 @Entity(tableName = "diary")
 data class DiaryEntity(

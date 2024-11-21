@@ -8,8 +8,4 @@ class ImageSaveUseCase @Inject constructor(private val imageSaveRepository: Imag
     fun saveCropImage(image:String):String {
         return imageSaveRepository.saveCropImage(image)
     }
-
-    suspend fun saveImages(uri: List<String>): List<String> {
-        return imageSaveRepository.saveImages(uri)
-    }
 }

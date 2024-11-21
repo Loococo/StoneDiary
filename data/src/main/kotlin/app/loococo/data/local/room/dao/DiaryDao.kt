@@ -1,9 +1,9 @@
-package app.loococo.data.local.dao
+package app.loococo.data.local.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import app.loococo.data.local.model.DiaryEntity
+import app.loococo.data.local.room.model.DiaryEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
