@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
     kotlin("kapt")
 }
 
@@ -48,5 +49,10 @@ dependencies {
     implementation (libs.androidx.paging.compose )
 
     implementation(libs.androidx.exifinterface)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+
+    implementation(libs.kotlinx.serialization.json)
 
 }

@@ -1,4 +1,4 @@
-package app.loococo.data.local.converter
+package app.loococo.data.local.room.converter
 
 import androidx.room.TypeConverter
 

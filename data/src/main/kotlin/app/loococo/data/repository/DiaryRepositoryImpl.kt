@@ -1,8 +1,8 @@
 package app.loococo.data.repository
 
-import app.loococo.data.local.dao.DiaryDao
-import app.loococo.data.local.model.toDiary
-import app.loococo.data.local.model.toDiaryEntity
+import app.loococo.data.local.room.dao.DiaryDao
+import app.loococo.data.local.room.model.toDiary
+import app.loococo.data.local.room.model.toDiaryEntity
 import app.loococo.domain.model.Diary
 import app.loococo.domain.repository.DiaryRepository
 import kotlinx.coroutines.flow.Flow

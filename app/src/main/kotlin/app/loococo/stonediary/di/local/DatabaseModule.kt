@@ -1,9 +1,9 @@
-package app.loococo.stonediary.di
+package app.loococo.stonediary.di.local
 
 import android.content.Context
 import androidx.room.Room
-import app.loococo.data.local.AppDatabase
-import app.loococo.data.local.dao.DiaryDao
+import app.loococo.data.local.room.AppDatabase
+import app.loococo.data.local.room.dao.DiaryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

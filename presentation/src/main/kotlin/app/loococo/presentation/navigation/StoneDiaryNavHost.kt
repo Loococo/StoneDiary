@@ -3,6 +3,8 @@ package app.loococo.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import app.loococo.presentation.screen.AppRoute
+import app.loococo.presentation.screen.auth.authScreen
+import app.loococo.presentation.screen.auth.navigateUpToRegister
 import app.loococo.presentation.screen.detail.detailScreen
 import app.loococo.presentation.screen.detail.navigateToDetail
 import app.loococo.presentation.screen.gallery.galleryScreen
@@ -22,8 +24,12 @@ fun StoneDiaryNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = AppRoute.Home
+        startDestination = appState.startDestination
     ) {
+        authScreen(
+            navigateUpToHome = navController::navigateToHome,
+            navigateUpToRegister = navController::navigateUpToRegister
+        )
         homeScreen(
             navigateToDetail = navController::navigateToDetail,
             navigateToWrite = navController::navigateToEmotion

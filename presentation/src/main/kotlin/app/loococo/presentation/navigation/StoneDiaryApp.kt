@@ -12,7 +12,7 @@ import app.loococo.presentation.theme.StoneDiaryTheme
 
 @Composable
 fun StoneDiaryApp(
-    appState: StoneDiaryAppState = rememberStoneDiaryAppState()
+    appState: StoneDiaryAppState
 ) {
         StoneDiaryTheme {
             Scaffold(

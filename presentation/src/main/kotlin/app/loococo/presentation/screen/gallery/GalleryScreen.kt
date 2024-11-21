@@ -1,6 +1,5 @@
 package app.loococo.presentation.screen.gallery
 
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -23,10 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
@@ -34,17 +31,12 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import app.loococo.domain.model.image.CropSize
 import app.loococo.domain.model.image.ImageData
-import app.loococo.presentation.R
 import app.loococo.presentation.component.CircularProgressBar
 import app.loococo.presentation.component.DrawGuidelines
 import app.loococo.presentation.component.StoneDiaryAsyncImage
 import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.screen.gallery.helper.ImageZoomHelper
 import app.loococo.presentation.utils.StoneDiaryIcons
-import coil.ImageLoader
-import coil.compose.AsyncImage
-import coil.imageLoader
-import coil.request.ImageRequest
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -156,8 +148,6 @@ private fun ImageZoom(
     calculateScaleFactor: (CropSize, CropSize) -> Float,
     onEventSent: (GalleryEvent) -> Unit
 ) {
-    val context = LocalContext.current
-    val imageLoader = context.imageLoader
     val zoomHelper = remember {
         ImageZoomHelper { cropData ->
             onEventSent(GalleryEvent.OnUpdateZoomData(cropData))
@@ -176,9 +166,7 @@ private fun ImageZoom(
     ZoomableImage(
         imageData = imageData,
         boxSize = boxSize,
-        zoomHelper = zoomHelper,
-        context = context,
-        imageLoader = imageLoader
+        zoomHelper = zoomHelper
     )
     DrawGuidelines()
 }
@@ -187,9 +175,7 @@ private fun ImageZoom(
 private fun ZoomableImage(
     imageData: ImageData,
     boxSize: CropSize,
-    zoomHelper: ImageZoomHelper,
-    context: Context,
-    imageLoader: ImageLoader
+    zoomHelper: ImageZoomHelper
 ) {
     fun Modifier.detectZoomPanGesture() = pointerInput(Unit) {
         detectTransformGestures { centroid, pan, zoom, _ ->
@@ -206,22 +192,10 @@ private fun ZoomableImage(
 
     val transformationState = zoomHelper.getTransformationState()
 
-    AsyncImage(
-        model = ImageRequest.Builder(context)
-            .data(imageData.image)
-            .placeholder(R.drawable.placeholder)
-            .error(R.drawable.placeholder)
-            .build(),
-        contentDescription = "Zoomable image",
-        imageLoader = imageLoader,
-        modifier = Modifier
-            .detectZoomPanGesture()
-            .graphicsLayer(
-                scaleX = transformationState.scale,
-                scaleY = transformationState.scale,
-                translationX = transformationState.offsetX,
-                translationY = transformationState.offsetY
-            )
+    StoneDiaryAsyncImage(
+        image = imageData.image,
+        modifier = Modifier.detectZoomPanGesture(),
+        transformationState = transformationState
     )
 }
 

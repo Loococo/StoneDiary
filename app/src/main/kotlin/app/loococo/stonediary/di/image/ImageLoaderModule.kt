@@ -1,4 +1,4 @@
-package app.loococo.stonediary.di
+package app.loococo.stonediary.di.image
 
 import android.content.Context
 import coil.ImageLoader
