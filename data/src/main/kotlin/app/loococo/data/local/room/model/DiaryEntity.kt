@@ -2,8 +2,11 @@ package app.loococo.data.local.room.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import app.loococo.domain.model.Diary
 
+/**
+ * Room 다이어리 Entity.
+ * 도메인 모델(Diary)과의 변환은 data/repository/mapper/DiaryMappers.kt 참조.
+ */
 @Entity(tableName = "diary")
 data class DiaryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
@@ -13,24 +16,3 @@ data class DiaryEntity(
     val emotion: String,
     val imageList: List<String>
 )
-
-fun DiaryEntity.toDiary(): Diary {
-    return Diary(
-        id = this.id,
-        date = this.date,
-        title = this.title,
-        content = this.content,
-        emotion = this.emotion,
-        imageList = this.imageList
-    )
-}
-
-fun Diary.toDiaryEntity(): DiaryEntity {
-    return DiaryEntity(
-        date = this.date,
-        title = this.title,
-        content = this.content,
-        emotion = this.emotion,
-        imageList = this.imageList
-    )
-}

@@ -2,6 +2,7 @@
 // Android 의존성 금지. 외부 모듈을 절대 참조하지 않는다 (Clean Architecture)
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 java {
@@ -11,6 +12,7 @@ java {
 
 dependencies {
     implementation(libs.hilt.javax.inject)
-    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.paging.common)
 }
