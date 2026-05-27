@@ -1,95 +1,108 @@
 [versions]
 # 빌드 도구
-agp = "8.4.2"
-kotlin = "1.9.24"
+agp = "9.1.0"
+kotlin = "2.2.10"
+ksp = "2.2.10-2.0.2"
 
 # AndroidX Core
 coreKtx = "1.13.1"
-lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.2"
-splashscreen = "1.2.0-alpha01"
+lifecycleRuntimeKtx = "2.8.7"
+activityCompose = "1.9.3"
+coreSplashscreen = "1.0.1"
 
 # Compose
-composeBom = "2024.09.02"
+composeBom = "2026.02.01"
 
 # Navigation
-navigation = "2.8.2"
+navigation = "2.9.0"
 
 # DI (Hilt)
-hilt = "2.52"
-hiltViewModel = "1.2.0"
+hilt = "2.59.2"
+hiltNavigationCompose = "1.2.0"
 javaxInject = "1"
 
-# 데이터 — Room
-room = "2.6.1"
+# 데이터 — Room / DataStore
+room = "2.7.2"
+datastore = "1.1.2"
 
 # 직렬화 & 비동기
-kotlinxSerialization = "1.6.0"
-jetbrainsKotlinx = "1.9.0"
+kotlinxSerialization = "1.7.3"
+coroutines = "1.9.0"
 
 # 네트워크
 retrofit = "2.9.0"
 okhttp3 = "4.12.0"
 
 # 이미지
-coilCompose = "2.7.0"
-exifinterface = "1.3.7"
+coil = "3.1.0"
+exifInterface = "1.4.1"
 
 # Paging
 pagingCompose = "3.3.2"
 
-# MVI
+# MVI — Orbit (Phase 5에서 제거 예정 — 그 전까지 유지)
 orbit = "8.0.0"
 
 # 로깅
 timber = "5.0.1"
 
-# 테스트
+# 테스트 — JUnit5/Mockk/Turbine 신규 + 기존(Phase 6에서 점진 제거)
 junit = "4.13.2"
 junitVersion = "1.2.1"
+junit5 = "5.11.3"
+mockk = "1.13.13"
+turbine = "1.2.0"
 mockitoKotlin = "5.0.0"
-coroutinesTest = "1.7.3"
 
 [libraries]
 # AndroidX Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 # Compose BOM & UI
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 # Navigation Compose
-androidx-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 
 # Hilt DI
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-hilt-viewmodel = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltViewModel" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 hilt-javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
 
 # Room 데이터베이스
-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+
+# DataStore Preferences
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 # 직렬화 & 비동기
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-jetbrains-kotlinx = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "jetbrainsKotlinx" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 # 네트워크 — Retrofit / OkHttp
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 okhttp3 = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
 
-# 이미지 — Coil / Exif
-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
-androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+# 이미지 — Coil 3 / Exif
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifInterface" }
 
 # Paging
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingCompose" }
@@ -104,17 +117,21 @@ orbit-test = { group = "org.orbit-mvi", name = "orbit-test", version.ref = "orbi
 # 로깅 — Timber (디버그 전용)
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
-# 테스트
+# 테스트 — JUnit5 + Mockk + Turbine (신규) / JUnit4 + Mockito (Phase 6에서 제거)
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+junit5-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit5" }
+junit5-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junit5" }
+junit5-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version = "1.11.3" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
