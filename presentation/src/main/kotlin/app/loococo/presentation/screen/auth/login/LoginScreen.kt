@@ -29,8 +29,8 @@ import app.loococo.presentation.component.StoneDiaryBorderEmailTextField
 import app.loococo.presentation.component.StoneDiaryBorderPasswordTextField
 import app.loococo.presentation.component.StoneDiaryRoundButton
 import app.loococo.presentation.component.StoneDiaryTitleText
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun LoginRoute(
@@ -46,15 +46,17 @@ fun LoginScreen(
     navigateUpToRegister: () -> Unit
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    viewModel.collectSideEffect {
-        when (it) {
-            LoginUiEffect.NavigateToHome -> navigateUpToHome()
-            LoginUiEffect.NavigateToRegister -> navigateUpToRegister()
-            is LoginUiEffect.ShowToast -> {
-                Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                LoginUiEffect.NavigateToHome -> navigateUpToHome()
+                LoginUiEffect.NavigateToRegister -> navigateUpToRegister()
+                is LoginUiEffect.ShowToast -> {
+                    Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -75,14 +77,14 @@ fun LoginScreen(
             LoginContent(
                 email = state.email,
                 password = state.password,
-                onEventSent = viewModel::onEventReceived
+                onEventSent = viewModel::onEvent
             )
             LoginSubContent(
-                onEventSent = viewModel::onEventReceived
+                onEventSent = viewModel::onEvent
             )
         }
         LoginFooter(
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 

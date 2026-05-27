@@ -51,8 +51,7 @@ import app.loococo.presentation.utils.checkPermission
 import app.loococo.presentation.utils.formattedDateWrite
 import app.loococo.presentation.utils.handlePermissionResult
 import app.loococo.presentation.utils.rememberPermissionLauncher
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 internal fun ContentRoute(
@@ -77,41 +76,43 @@ private fun ContentScreen(
     navigateUp: () -> Unit
 ) {
     val viewModel: ContentViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     var showDeleteImageDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(image) {
         if (image.isNotBlank()) {
-            viewModel.onEventReceived(ContentUiEvent.OnImageAdded(image))
+            viewModel.onEvent(ContentUiEvent.OnImageAdded(image))
         }
     }
 
-    viewModel.collectSideEffect { effect ->
-        when (effect) {
-            ContentUiEffect.NavigateUp -> navigateUp()
-            ContentUiEffect.NavigateToHome -> navigateToHome()
-            ContentUiEffect.NavigateToGallery -> navigateToGallery()
-            ContentUiEffect.DeleteImageDialog -> showDeleteImageDialog = true
-            is ContentUiEffect.ShowToast -> {
-                Toast.makeText(context, effect.res, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                ContentUiEffect.NavigateUp -> navigateUp()
+                ContentUiEffect.NavigateToHome -> navigateToHome()
+                ContentUiEffect.NavigateToGallery -> navigateToGallery()
+                ContentUiEffect.DeleteImageDialog -> showDeleteImageDialog = true
+                is ContentUiEffect.ShowToast -> {
+                    Toast.makeText(context, effect.res, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        ContentHeader(onEventSent = viewModel::onEventReceived)
+        ContentHeader(onEventSent = viewModel::onEvent)
         ContentTitle(
             emotion = state.emotion,
             currentDate = state.currentDate.formattedDateWrite(),
             title = state.title,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
         ContentBody(
             context = context,
             content = state.content,
             imageList = state.imageList,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 
@@ -121,7 +122,7 @@ private fun ContentScreen(
             showDeleteImageDialog = false
         },
         onImageDeleted = {
-            viewModel.onEventReceived(ContentUiEvent.OnConfirmDeleteImage)
+            viewModel.onEvent(ContentUiEvent.OnConfirmDeleteImage)
         }
     )
     CircularProgressBar(state.isLoading)

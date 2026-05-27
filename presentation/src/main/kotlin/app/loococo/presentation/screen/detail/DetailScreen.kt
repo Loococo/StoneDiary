@@ -38,8 +38,8 @@ import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import app.loococo.presentation.theme.Black
 import app.loococo.presentation.utils.StoneDiaryIcons
 import app.loococo.presentation.utils.formattedDateWrite
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 internal fun DetailRoute(
@@ -58,28 +58,29 @@ fun DetailScreen(
 ) {
     val viewModel: DetailViewModel = hiltViewModel()
 
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
     var showMoreDialog by rememberSaveable { mutableStateOf(false) }
 
-    viewModel.collectSideEffect {
-        when (it) {
-            DetailUiEffect.NavigateToHome -> navigateToHome()
-            DetailUiEffect.NavigateToWrite -> navigateToWrite(state.id)
-            DetailUiEffect.NavigateUp -> navigateUp()
-            DetailUiEffect.MoreDialog -> {
-                showMoreDialog = true
-            }
-
-            is DetailUiEffect.ShowToast -> {
-                Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                DetailUiEffect.NavigateToHome -> navigateToHome()
+                DetailUiEffect.NavigateToWrite -> navigateToWrite(state.id)
+                DetailUiEffect.NavigateUp -> navigateUp()
+                DetailUiEffect.MoreDialog -> {
+                    showMoreDialog = true
+                }
+                is DetailUiEffect.ShowToast -> {
+                    Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        DetailHeader(onEventSent = viewModel::onEventReceived)
+        DetailHeader(onEventSent = viewModel::onEvent)
         DetailTitle(diary = state.diary)
         DetailBody(diary = state.diary)
     }
@@ -91,10 +92,10 @@ fun DetailScreen(
             showMoreDialog = false
         },
         onModify = {
-            viewModel.onEventReceived(DetailUiEvent.OnModifyClicked)
+            viewModel.onEvent(DetailUiEvent.OnModifyClicked)
         },
         onDelete = {
-            viewModel.onEventReceived(DetailUiEvent.OnDeletedClicked)
+            viewModel.onEvent(DetailUiEvent.OnDeletedClicked)
         }
     )
 

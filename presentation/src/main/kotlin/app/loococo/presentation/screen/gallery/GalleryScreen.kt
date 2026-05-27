@@ -37,8 +37,7 @@ import app.loococo.presentation.component.StoneDiaryAsyncImage
 import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.screen.gallery.helper.ImageZoomHelper
 import app.loococo.presentation.utils.StoneDiaryIcons
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 internal fun GalleryRoute(
@@ -54,27 +53,29 @@ private fun GalleryScreen(
     navigateUp: () -> Unit
 ) {
     val viewModel: GalleryViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
     val lazyPagingItems = viewModel.imagePager.collectAsLazyPagingItems()
 
-    viewModel.collectSideEffect {
-        when (it) {
-            GalleryUiEffect.NavigateUp -> navigateUp()
-            is GalleryUiEffect.NavigateToWrite -> navigateUpToWrite(it.image)
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                GalleryUiEffect.NavigateUp -> navigateUp()
+                is GalleryUiEffect.NavigateToWrite -> navigateUpToWrite(it.image)
+            }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        GalleryHeader(onEventSent = viewModel::onEventReceived)
+        GalleryHeader(onEventSent = viewModel::onEvent)
         SelectedImage(
             imageData = state.imageData,
             calculateImageSize = viewModel::calculateImageSize,
             calculateScaleFactor = viewModel::calculateScaleFactor,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
         ImageGrid(
             lazyPagingItems = lazyPagingItems,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 

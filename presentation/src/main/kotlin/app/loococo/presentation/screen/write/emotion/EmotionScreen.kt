@@ -28,8 +28,8 @@ import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.component.StoneDiaryTitleText
 import app.loococo.presentation.theme.Black
 import app.loococo.presentation.utils.StoneDiaryIcons
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun EmotionRoute(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit) {
@@ -39,18 +39,20 @@ fun EmotionRoute(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit
 @Composable
 fun EmotionScreen(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit) {
     val viewModel: EmotionViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-    viewModel.collectSideEffect {
-        when (it) {
-            EmotionUiEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
-            EmotionUiEffect.NavigateUp -> navigateUp()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                EmotionUiEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
+                EmotionUiEffect.NavigateUp -> navigateUp()
+            }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        EmotionHeader(onEventSent = viewModel::onEventReceived)
-        EmotionList(onEventSent = viewModel::onEventReceived)
+        EmotionHeader(onEventSent = viewModel::onEvent)
+        EmotionList(onEventSent = viewModel::onEvent)
     }
 }
 

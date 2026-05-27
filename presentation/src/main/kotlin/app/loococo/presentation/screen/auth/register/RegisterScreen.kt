@@ -27,8 +27,8 @@ import app.loococo.presentation.component.StoneDiaryBorderNameTextField
 import app.loococo.presentation.component.StoneDiaryBorderPasswordTextField
 import app.loococo.presentation.component.StoneDiaryRoundButton
 import app.loococo.presentation.component.StoneDiaryTitleText
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun RegisterRoute() {
@@ -38,13 +38,15 @@ fun RegisterRoute() {
 @Composable
 fun RegisterScreen() {
     val viewModel: RegisterViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    viewModel.collectSideEffect {
-        when (it) {
-            is RegisterUiEffect.ShowToast -> {
-                Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                is RegisterUiEffect.ShowToast -> {
+                    Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -61,7 +63,7 @@ fun RegisterScreen() {
             email = state.email,
             password = state.password,
             name = state.name,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 

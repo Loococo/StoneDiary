@@ -40,19 +40,15 @@ exifInterface = "1.4.1"
 # Paging
 pagingCompose = "3.3.2"
 
-# MVI — Orbit (Phase 5에서 제거 예정 — 그 전까지 유지)
-orbit = "8.0.0"
-
 # 로깅
 timber = "5.0.1"
 
-# 테스트 — JUnit5/Mockk/Turbine 신규 + 기존(Phase 6에서 점진 제거)
+# 테스트 — JUnit5/Mockk/Turbine
 junit = "4.13.2"
 junitVersion = "1.2.1"
 junit5 = "5.11.3"
 mockk = "1.13.13"
 turbine = "1.2.0"
-mockitoKotlin = "5.0.0"
 
 [libraries]
 # AndroidX Core
@@ -110,15 +106,10 @@ androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", 
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "pagingCompose" }
 androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "pagingCompose" }
 
-# MVI — Orbit (Phase 5에서 제거 예정)
-orbit-viewmodel = { group = "org.orbit-mvi", name = "orbit-viewmodel", version.ref = "orbit" }
-orbit-compose = { group = "org.orbit-mvi", name = "orbit-compose", version.ref = "orbit" }
-orbit-test = { group = "org.orbit-mvi", name = "orbit-test", version.ref = "orbit" }
-
 # 로깅 — Timber (디버그 전용)
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
-# 테스트 — JUnit5 + Mockk + Turbine (신규) / JUnit4 + Mockito (Phase 6에서 제거)
+# 테스트 — JUnit5 + Mockk + Turbine
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 junit5-jupiter-api = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junit5" }
@@ -126,7 +117,6 @@ junit5-jupiter-engine = { group = "org.junit.jupiter", name = "junit-jupiter-eng
 junit5-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version = "1.11.3" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
-mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

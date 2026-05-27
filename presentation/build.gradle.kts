@@ -84,14 +84,7 @@ dependencies {
     // 로깅
     implementation(libs.timber)
 
-    // MVI — Orbit (Phase 5에서 제거 예정)
-    implementation(libs.orbit.viewmodel)
-    implementation(libs.orbit.compose)
-
-    // 테스트 — JUnit5 + Mockk + Turbine (신규) / 기존 JUnit4+Mockito는 Phase 6에서 정리
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.kotlin)
-    testImplementation(libs.orbit.test)
+    // 테스트 — JUnit5 + Mockk + Turbine (순수 Flow MVI 검증용)
     testImplementation(libs.junit5.jupiter.api)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)

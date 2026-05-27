@@ -10,125 +10,128 @@ import app.loococo.presentation.screen.AppRoute
 import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
-import org.orbitmvi.orbit.syntax.simple.reduce
-import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
+/**
+ * 다이어리 본문 작성 ViewModel — 순수 Flow MVI (Orbit 제거, Phase 5).
+ */
 @HiltViewModel
 class ContentViewModel @Inject constructor(
     private val diaryUseCase: DiaryUseCase,
     savedStateHandle: SavedStateHandle
-) :
-    ContainerHost<ContentUiState, ContentUiEffect>, ViewModel() {
-    override val container = container<ContentUiState, ContentUiEffect>(ContentUiState())
+) : ViewModel() {
+
+    private val _state = MutableStateFlow(ContentUiState())
+    val state: StateFlow<ContentUiState> = _state.asStateFlow()
+
+    private val _effect = MutableSharedFlow<ContentUiEffect>(
+        replay = 0,
+        extraBufferCapacity = 1,
+    )
+    val effect: SharedFlow<ContentUiEffect> = _effect.asSharedFlow()
 
     private val emotion = savedStateHandle.toRoute<AppRoute.Write.Content>().emotion
     private val id = savedStateHandle.toRoute<AppRoute.Write.Content>().id
 
     init {
-        onEventReceived(ContentUiEvent.OnEmotionUpdated(emotion))
-        onEventReceived(ContentUiEvent.OnDiaryIdUpdated(id))
+        onEvent(ContentUiEvent.OnEmotionUpdated(emotion))
+        onEvent(ContentUiEvent.OnDiaryIdUpdated(id))
     }
 
-    fun onEventReceived(event: ContentUiEvent) {
+    fun onEvent(event: ContentUiEvent) {
         when (event) {
-            ContentUiEvent.OnAddImageClicked -> onAddImageClicked()
-            ContentUiEvent.OnBackClicked -> onBackClicked()
-            ContentUiEvent.OnConfirmDeleteImage -> onConfirmDeleteImage()
-            is ContentUiEvent.OnContentUpdated -> onContentUpdated(event.content)
-            is ContentUiEvent.OnDeleteImageClicked -> onDeleteImageClicked(event.image)
-            is ContentUiEvent.OnEmotionUpdated -> onEmotionUpdated(event.emotion)
-            is ContentUiEvent.OnImageAdded -> onImageAdded(event.image)
-            ContentUiEvent.OnSaveClicked -> onSaveClicked()
-            is ContentUiEvent.OnTitleUpdated -> onTitleUpdated(event.title)
-            is ContentUiEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
+            ContentUiEvent.OnAddImageClicked -> handleAddImageClicked()
+            ContentUiEvent.OnBackClicked -> emitEffect(ContentUiEffect.NavigateUp)
+            ContentUiEvent.OnConfirmDeleteImage -> handleConfirmDeleteImage()
+            is ContentUiEvent.OnContentUpdated -> _state.update { it.copy(content = event.content) }
+            is ContentUiEvent.OnDeleteImageClicked -> handleDeleteImageClicked(event.image)
+            is ContentUiEvent.OnEmotionUpdated -> _state.update { it.copy(emotion = event.emotion.formatEmotionEnum()) }
+            is ContentUiEvent.OnImageAdded -> handleImageAdded(event.image)
+            ContentUiEvent.OnSaveClicked -> handleSaveClicked()
+            is ContentUiEvent.OnTitleUpdated -> _state.update { it.copy(title = event.title) }
+            is ContentUiEvent.OnDiaryIdUpdated -> handleDiaryIdUpdated(event.id)
         }
     }
 
-    private fun onDiaryIdUpdated(id: Long) = intent {
-        if (id != 0L) {
-            viewModelScope.launch(Dispatchers.IO) {
-                diaryUseCase.getDiary(id).collectLatest { diary ->
-                    reduce {
-                        state.copy(
-                            id = id,
-                            title = diary.title,
-                            content = diary.content,
-                            imageList = diary.imageList.toMutableList().ifEmpty { mutableListOf() }
-                        )
-                    }
+    private fun handleDiaryIdUpdated(id: Long) {
+        if (id == 0L) return
+        viewModelScope.launch(Dispatchers.IO) {
+            diaryUseCase.getDiary(id).collectLatest { diary ->
+                _state.update {
+                    it.copy(
+                        id = id,
+                        title = diary.title,
+                        content = diary.content,
+                        imageList = diary.imageList.toMutableList().ifEmpty { mutableListOf() }
+                    )
                 }
             }
         }
     }
 
-    private fun onConfirmDeleteImage() = intent {
-        val newImageList = state.imageList.toMutableList().apply { remove(state.selectedImage) }
-        reduce { state.copy(imageList = newImageList) }
+    private fun handleConfirmDeleteImage() {
+        _state.update {
+            val newImageList = it.imageList.toMutableList().apply { remove(it.selectedImage) }
+            it.copy(imageList = newImageList)
+        }
     }
 
-    private fun onDeleteImageClicked(image: String) = intent {
-        reduce { state.copy(selectedImage = image) }
-        postSideEffect(ContentUiEffect.DeleteImageDialog)
+    private fun handleDeleteImageClicked(image: String) {
+        _state.update { it.copy(selectedImage = image) }
+        emitEffect(ContentUiEffect.DeleteImageDialog)
     }
 
-    private fun onImageAdded(image: String) = intent {
-        if (image.isBlank() || state.imageList.contains(image)) return@intent
-        val newImageList = state.imageList.toMutableList().apply { add(image) }
-        reduce { state.copy(imageList = newImageList) }
+    private fun handleImageAdded(image: String) {
+        if (image.isBlank() || state.value.imageList.contains(image)) return
+        _state.update {
+            val newImageList = it.imageList.toMutableList().apply { add(image) }
+            it.copy(imageList = newImageList)
+        }
     }
 
-    private fun onSaveClicked() = intent {
-        if (state.title.isBlank() || state.content.isBlank()) {
-            postSideEffect(ContentUiEffect.ShowToast(R.string.write_content_waring))
-            return@intent
+    private fun handleSaveClicked() {
+        if (state.value.title.isBlank() || state.value.content.isBlank()) {
+            emitEffect(ContentUiEffect.ShowToast(R.string.write_content_waring))
+            return
         }
 
-        reduce { state.copy(isLoading = true) }
+        _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                val s = state.value
                 diaryUseCase.insertOrUpdate(
-                    state.id,
-                    state.currentDate,
-                    state.title,
-                    state.content,
-                    state.emotion.name,
-                    state.imageList
+                    s.id,
+                    s.currentDate,
+                    s.title,
+                    s.content,
+                    s.emotion.name,
+                    s.imageList
                 )
             }
-            postSideEffect(ContentUiEffect.NavigateToHome)
-
-            reduce { state.copy(isLoading = false) }
+            _effect.emit(ContentUiEffect.NavigateToHome)
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
-    private fun onEmotionUpdated(emotion: String) = intent {
-        reduce { state.copy(emotion = emotion.formatEmotionEnum()) }
-    }
-
-    private fun onTitleUpdated(title: String) = intent {
-        reduce { state.copy(title = title) }
-    }
-
-    private fun onContentUpdated(content: String) = intent {
-        reduce { state.copy(content = content) }
-    }
-
-    private fun onAddImageClicked() = intent {
-        if (state.imageList.size == 3) {
-            postSideEffect(ContentUiEffect.ShowToast(R.string.image_limit_waring))
-            return@intent
+    private fun handleAddImageClicked() {
+        if (state.value.imageList.size == 3) {
+            emitEffect(ContentUiEffect.ShowToast(R.string.image_limit_waring))
+            return
         }
-        postSideEffect(ContentUiEffect.NavigateToGallery)
+        emitEffect(ContentUiEffect.NavigateToGallery)
     }
 
-    private fun onBackClicked() = intent {
-        postSideEffect(ContentUiEffect.NavigateUp)
+    private fun emitEffect(effect: ContentUiEffect) {
+        viewModelScope.launch { _effect.emit(effect) }
     }
 }

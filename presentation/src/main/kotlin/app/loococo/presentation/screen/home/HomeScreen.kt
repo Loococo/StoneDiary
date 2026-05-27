@@ -33,8 +33,8 @@ import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import app.loococo.presentation.utils.StoneDiaryIcons
 import app.loococo.presentation.utils.formattedHomeDate
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 internal fun HomeRoute(
@@ -50,24 +50,26 @@ fun HomeScreen(
     navigateToWrite: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-    viewModel.collectSideEffect {
-        when (it) {
-            is HomeUiEffect.NavigateToDetail -> navigateToDetail(it.id)
-            HomeUiEffect.NavigateToWrite -> navigateToWrite()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                is HomeUiEffect.NavigateToDetail -> navigateToDetail(it.id)
+                HomeUiEffect.NavigateToWrite -> navigateToWrite()
+            }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         DiaryHeader(
             currentDate = state.currentDate.formattedHomeDate(),
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
         DiaryList(
             diaryList = state.diaryList,
             todayDiaryState = state.todayDiaryState,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 }
