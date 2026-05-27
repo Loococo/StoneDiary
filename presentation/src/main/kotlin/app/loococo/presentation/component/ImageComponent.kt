@@ -9,18 +9,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import app.loococo.presentation.R
 import app.loococo.presentation.screen.gallery.helper.TransformationState
-import coil.compose.AsyncImage
-import coil.imageLoader
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.placeholder
+import coil3.request.error
 
+/**
+ * Coil 3 기반 AsyncImage 래퍼.
+ * 호출처에서 ImageLoader 를 직접 주입할 필요 없이 Coil 3 의 singleton ImageLoader 가 사용된다.
+ */
 @Composable
 fun StoneDiaryAsyncImage(
     image: String,
     modifier: Modifier,
     transformationState: TransformationState
 ) {
-    val context = LocalContext.current
-    val imageLoader = context.imageLoader
+    val context = LocalPlatformContext.current
 
     AsyncImage(
         model = ImageRequest.Builder(context)
@@ -29,7 +34,6 @@ fun StoneDiaryAsyncImage(
             .error(R.drawable.placeholder)
             .build(),
         contentDescription = "Zoom image",
-        imageLoader = imageLoader,
         modifier = modifier
             .graphicsLayer(
                 scaleX = transformationState.scale,
@@ -42,8 +46,7 @@ fun StoneDiaryAsyncImage(
 
 @Composable
 fun StoneDiaryAsyncImage(image: Uri) {
-    val context = LocalContext.current
-    val imageLoader = context.imageLoader
+    val context = LocalPlatformContext.current
 
     AsyncImage(
         model = ImageRequest.Builder(context)
@@ -52,7 +55,6 @@ fun StoneDiaryAsyncImage(image: Uri) {
             .error(R.drawable.placeholder)
             .build(),
         contentDescription = "image",
-        imageLoader = imageLoader,
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .fillMaxSize()
@@ -63,4 +65,3 @@ fun StoneDiaryAsyncImage(image: Uri) {
 fun StoneDiaryAsyncImage(image: String) {
     StoneDiaryAsyncImage(Uri.parse(image))
 }
-

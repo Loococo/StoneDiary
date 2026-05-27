@@ -29,8 +29,8 @@ import app.loococo.presentation.component.StoneDiaryBorderEmailTextField
 import app.loococo.presentation.component.StoneDiaryBorderPasswordTextField
 import app.loococo.presentation.component.StoneDiaryRoundButton
 import app.loococo.presentation.component.StoneDiaryTitleText
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun LoginRoute(
@@ -46,15 +46,17 @@ fun LoginScreen(
     navigateUpToRegister: () -> Unit
 ) {
     val viewModel: LoginViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
-    viewModel.collectSideEffect {
-        when (it) {
-            LoginSideEffect.NavigateToHome -> navigateUpToHome()
-            LoginSideEffect.NavigateToRegister -> navigateUpToRegister()
-            is LoginSideEffect.ShowToast -> {
-                Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                LoginUiEffect.NavigateToHome -> navigateUpToHome()
+                LoginUiEffect.NavigateToRegister -> navigateUpToRegister()
+                is LoginUiEffect.ShowToast -> {
+                    Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -75,14 +77,14 @@ fun LoginScreen(
             LoginContent(
                 email = state.email,
                 password = state.password,
-                onEventSent = viewModel::onEventReceived
+                onEventSent = viewModel::onEvent
             )
             LoginSubContent(
-                onEventSent = viewModel::onEventReceived
+                onEventSent = viewModel::onEvent
             )
         }
         LoginFooter(
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 
@@ -109,7 +111,7 @@ fun LoginHeader() {
 fun LoginContent(
     email: String,
     password: String,
-    onEventSent: (LoginEvent) -> Unit
+    onEventSent: (LoginUiEvent) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         HeightSpacer(height = 20)
@@ -118,7 +120,7 @@ fun LoginContent(
             text = email,
             hint = stringResource(R.string.email_hint),
             onValueChange = {
-                onEventSent(LoginEvent.OnEmailUpdated(it))
+                onEventSent(LoginUiEvent.OnEmailUpdated(it))
             }
         )
 
@@ -128,7 +130,7 @@ fun LoginContent(
             text = password,
             hint = stringResource(R.string.password_hint),
             onValueChange = {
-                onEventSent(LoginEvent.OnPasswordUpdated(it))
+                onEventSent(LoginUiEvent.OnPasswordUpdated(it))
             }
         )
         HeightSpacer(height = 20)
@@ -136,7 +138,7 @@ fun LoginContent(
         StoneDiaryRoundButton(
             text = stringResource(R.string.login),
             onClick = {
-                onEventSent(LoginEvent.OnLoginClicked)
+                onEventSent(LoginUiEvent.OnLoginClicked)
             }
         )
 
@@ -145,7 +147,7 @@ fun LoginContent(
 }
 
 @Composable
-fun LoginSubContent(onEventSent: (LoginEvent) -> Unit) {
+fun LoginSubContent(onEventSent: (LoginUiEvent) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -153,13 +155,13 @@ fun LoginSubContent(onEventSent: (LoginEvent) -> Unit) {
         StoneDiaryBodyText("비밀번호찾기")
         StoneDiaryBodyText(
             text = "회원가입",
-            modifier = Modifier.clickable { onEventSent(LoginEvent.OnRegisterClicked) }
+            modifier = Modifier.clickable { onEventSent(LoginUiEvent.OnRegisterClicked) }
         )
     }
 }
 
 @Composable
-fun ColumnScope.LoginFooter(onEventSent: (LoginEvent) -> Unit) {
+fun ColumnScope.LoginFooter(onEventSent: (LoginUiEvent) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -169,7 +171,7 @@ fun ColumnScope.LoginFooter(onEventSent: (LoginEvent) -> Unit) {
     ) {
         StoneDiaryBodyText(
             text = "로그인 없이 사용하기",
-            modifier = Modifier.clickable { onEventSent(LoginEvent.OnSkipLoginClicked) }
+            modifier = Modifier.clickable { onEventSent(LoginUiEvent.OnSkipLoginClicked) }
         )
     }
 }

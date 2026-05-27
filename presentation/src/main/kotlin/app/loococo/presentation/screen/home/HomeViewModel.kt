@@ -6,59 +6,70 @@ import app.loococo.domain.model.Diary
 import app.loococo.domain.usecase.DiaryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.postSideEffect
-import org.orbitmvi.orbit.syntax.simple.reduce
-import org.orbitmvi.orbit.viewmodel.container
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 
+/**
+ * 홈 화면 ViewModel — 순수 Flow MVI (Orbit 제거, Phase 5).
+ */
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
-    ContainerHost<HomeState, HomeSideEffect>, ViewModel() {
+class HomeViewModel @Inject constructor(
+    private val useCase: DiaryUseCase
+) : ViewModel() {
 
-    override val container = container<HomeState, HomeSideEffect>(HomeState())
+    private val _state = MutableStateFlow(HomeUiState())
+    val state: StateFlow<HomeUiState> = _state.asStateFlow()
+
+    private val _effect = MutableSharedFlow<HomeUiEffect>(
+        replay = 0,
+        extraBufferCapacity = 1,
+    )
+    val effect: SharedFlow<HomeUiEffect> = _effect.asSharedFlow()
 
     private val currentDate =
         LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
 
     init {
         loadDiariesForMonth()
     }
 
-    fun onEventReceived(event: HomeEvent) {
+    fun onEvent(event: HomeUiEvent) {
         when (event) {
-            HomeEvent.OnPreviousMonthClicked -> updateMonth(-1)
-            HomeEvent.OnNextMonthClicked -> updateMonth(1)
-            is HomeEvent.OnDetailClicked -> navigateToDetail(event.id)
-            HomeEvent.OnWriteClicked -> navigateToWrite()
+            HomeUiEvent.OnPreviousMonthClicked -> updateMonth(-1)
+            HomeUiEvent.OnNextMonthClicked -> updateMonth(1)
+            is HomeUiEvent.OnDetailClicked -> navigateToDetail(event.id)
+            HomeUiEvent.OnWriteClicked -> navigateToWrite()
         }
     }
 
-    private fun navigateToDetail(id: Long) = intent {
-        postSideEffect(HomeSideEffect.NavigateToDetail(id))
+    private fun navigateToDetail(id: Long) {
+        viewModelScope.launch { _effect.emit(HomeUiEffect.NavigateToDetail(id)) }
     }
 
-    private fun navigateToWrite() = intent {
-        postSideEffect(HomeSideEffect.NavigateToWrite)
+    private fun navigateToWrite() {
+        viewModelScope.launch { _effect.emit(HomeUiEffect.NavigateToWrite) }
     }
 
-    private fun updateMonth(offset: Long) = intent {
-        reduce { state.copy(currentDate = state.currentDate.plusMonths(offset)) }
+    private fun updateMonth(offset: Long) {
+        _state.update { it.copy(currentDate = it.currentDate.plusMonths(offset)) }
         loadDiariesForMonth()
     }
 
-
-    internal fun loadDiariesForMonth() = intent {
-        val currentMonthStart = state.currentDate.withDayOfMonth(1)
-        state.cachedDiaryList[currentMonthStart]?.let { cachedList ->
+    internal fun loadDiariesForMonth() {
+        val currentMonthStart = state.value.currentDate.withDayOfMonth(1)
+        state.value.cachedDiaryList[currentMonthStart]?.let { cachedList ->
             updateDiaryState(cachedList)
-            return@intent
+            return
         }
 
         viewModelScope.launch {
@@ -68,23 +79,24 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
         }
     }
 
-    private suspend fun fetchAndCacheDiariesForCurrentMonth() = intent {
+    private suspend fun fetchAndCacheDiariesForCurrentMonth() {
         try {
-            useCase.getDiariesForMonth(state.currentDate).collect { diaryList ->
+            useCase.getDiariesForMonth(state.value.currentDate).collect { diaryList ->
                 updateDiaryState(diaryList)
                 cacheDiariesForMonth(diaryList)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             clearDiaryState()
         }
     }
 
-    private fun updateDiaryState(diaryList: List<Diary>) = intent {
-        val isCurrentMonth = isSameMonthAsToday(state.currentDate)
+    private fun updateDiaryState(diaryList: List<Diary>) {
+        val currentStateDate = state.value.currentDate
+        val isCurrentMonth = isSameMonthAsToday(currentStateDate)
         val todayDiaryExists = diaryList.any { it.date == currentDate && isCurrentMonth }
 
-        reduce {
-            state.copy(
+        _state.update {
+            it.copy(
                 diaryList = diaryList,
                 todayDiaryState = when {
                     isCurrentMonth && todayDiaryExists -> TodayDiaryState.Completed
@@ -95,21 +107,18 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
         }
     }
 
-    private fun cacheDiariesForMonth(diaryList: List<Diary>) = intent {
-        val currentMonthStart = state.currentDate.withDayOfMonth(1)
-        reduce {
-            state.copy(
-                cachedDiaryList = state.cachedDiaryList + (currentMonthStart to diaryList)
+    private fun cacheDiariesForMonth(diaryList: List<Diary>) {
+        val currentMonthStart = state.value.currentDate.withDayOfMonth(1)
+        _state.update {
+            it.copy(
+                cachedDiaryList = it.cachedDiaryList + (currentMonthStart to diaryList)
             )
         }
     }
 
-    private fun clearDiaryState() = intent {
-        reduce {
-            state.copy(diaryList = emptyList(), todayDiaryState = TodayDiaryState.Hide)
-        }
+    private fun clearDiaryState() {
+        _state.update { it.copy(diaryList = emptyList(), todayDiaryState = TodayDiaryState.Hide) }
     }
-
 
     private fun isSameMonthAsToday(date: LocalDate): Boolean =
         date.year == LocalDate.now().year && date.month == LocalDate.now().month

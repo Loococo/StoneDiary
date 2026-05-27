@@ -3,10 +3,10 @@ package app.loococo.domain.usecase
 import app.loococo.domain.model.image.CropData
 import app.loococo.domain.model.image.CropRect
 import app.loococo.domain.model.image.ImageData
-import app.loococo.domain.repository.ImageCropRepository
+import app.loococo.domain.repository.IImageCropRepository
 import javax.inject.Inject
 
-class ImageCropUseCase @Inject constructor(private val imageCropRepository: ImageCropRepository) {
+class ImageCropUseCase @Inject constructor(private val imageCropRepository: IImageCropRepository) {
 
     fun copRect(cropData: CropData): CropRect {
         val displayedImageWidth = cropData.imageSize.width * cropData.scale

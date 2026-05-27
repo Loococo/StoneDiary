@@ -3,6 +3,14 @@
 .gradle/
 build/
 
+# macOS
+.DS_Store
+
+# Claude / Cowork 작업용 (커밋 제외)
+.claude/
+CLAUDE.md
+MIGRATION.md
+
 # Local configuration file (sdk path, etc)
 local.properties
 

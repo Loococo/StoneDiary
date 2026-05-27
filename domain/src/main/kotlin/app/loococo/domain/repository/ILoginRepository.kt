@@ -4,6 +4,6 @@ import app.loococo.domain.model.LoginData
 import app.loococo.domain.model.network.Resource
 import kotlinx.coroutines.flow.Flow
 
-interface LoginRepository {
+interface ILoginRepository {
     suspend fun login(email: String, password: String): Flow<Resource<LoginData>>
 }

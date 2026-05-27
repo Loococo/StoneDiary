@@ -1,39 +1,32 @@
 package app.loococo.data.repository
 
-import app.loococo.data.local.pref.SharedPreferencesManager
+import app.loococo.data.local.pref.PreferencesDataStore
 import app.loococo.domain.model.Tokens
 import app.loococo.domain.model.User
-import app.loococo.domain.repository.PreferencesRepository
+import app.loococo.domain.repository.IPreferencesRepository
 import javax.inject.Inject
 
+/**
+ * DataStore Preferences 기반 구현체.
+ * 기존 SharedPreferences 데이터는 PreferencesDataStore 의 마이그레이션에서 자동 이전됨.
+ */
 class PreferencesRepositoryImpl @Inject constructor(
-    private val pref: SharedPreferencesManager
-) : PreferencesRepository {
+    private val store: PreferencesDataStore
+) : IPreferencesRepository {
 
-    companion object {
-        private const val KEY_SKIP_LOGIN = "is_skip_login"
-        private const val KEY_USER = "user_id"
-        private const val KEY_TOKEN = "access_token"
+    override suspend fun saveSkipLoginState() {
+        store.saveSkipLogin(true)
     }
 
+    override suspend fun isSkipLogin(): Boolean = store.isSkipLogin()
 
-    override fun saveSkipLoginState() {
-        pref.saveBoolean(KEY_SKIP_LOGIN, true)
+    override suspend fun saveUser(user: User) {
+        store.saveUser(user)
     }
 
-    override fun isSkipLogin(): Boolean {
-        return pref.getBoolean(KEY_SKIP_LOGIN)
-    }
+    override suspend fun userInfo(): User? = store.getUser()
 
-    override fun saveUser(user: User) {
-        pref.saveObject(KEY_USER, user)
-    }
-
-    override fun userInfo(): User? {
-        return pref.getObject(KEY_USER, User::class.java)
-    }
-
-    override fun saveTokens(tokens: Tokens) {
-        pref.saveObject(KEY_TOKEN, tokens)
+    override suspend fun saveTokens(tokens: Tokens) {
+        store.saveTokens(tokens)
     }
 }

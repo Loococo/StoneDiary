@@ -5,12 +5,12 @@ import app.loococo.domain.ext.isValidName
 import app.loococo.domain.ext.isValidPassword
 import app.loococo.domain.model.network.error.ErrorType
 import app.loococo.domain.model.network.Resource
-import app.loococo.domain.repository.RegisterRepository
+import app.loococo.domain.repository.IRegisterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
-class RegisterUseCase @Inject constructor(private val repository: RegisterRepository) {
+class RegisterUseCase @Inject constructor(private val repository: IRegisterRepository) {
 
     suspend operator fun invoke(
         email: String,

@@ -28,8 +28,8 @@ import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.component.StoneDiaryTitleText
 import app.loococo.presentation.theme.Black
 import app.loococo.presentation.utils.StoneDiaryIcons
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun EmotionRoute(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit) {
@@ -39,23 +39,25 @@ fun EmotionRoute(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit
 @Composable
 fun EmotionScreen(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Unit) {
     val viewModel: EmotionViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-    viewModel.collectSideEffect {
-        when (it) {
-            EmotionSideEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
-            EmotionSideEffect.NavigateUp -> navigateUp()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                EmotionUiEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
+                EmotionUiEffect.NavigateUp -> navigateUp()
+            }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        EmotionHeader(onEventSent = viewModel::onEventReceived)
-        EmotionList(onEventSent = viewModel::onEventReceived)
+        EmotionHeader(onEventSent = viewModel::onEvent)
+        EmotionList(onEventSent = viewModel::onEvent)
     }
 }
 
 @Composable
-fun EmotionHeader(onEventSent: (event: EmotionEvent) -> Unit) {
+fun EmotionHeader(onEventSent: (event: EmotionUiEvent) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,13 +67,13 @@ fun EmotionHeader(onEventSent: (event: EmotionEvent) -> Unit) {
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
-            onClick = { onEventSent(EmotionEvent.OnBackClicked) }
+            onClick = { onEventSent(EmotionUiEvent.OnBackClicked) }
         )
     }
 }
 
 @Composable
-fun EmotionList(onEventSent: (event: EmotionEvent) -> Unit) {
+fun EmotionList(onEventSent: (event: EmotionUiEvent) -> Unit) {
     val emotions = EmotionEnum.entries
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -98,11 +100,11 @@ fun EmotionList(onEventSent: (event: EmotionEvent) -> Unit) {
 @Composable
 fun EmotionListItem(
     emotion: EmotionEnum,
-    onEventSent: (event: EmotionEvent) -> Unit
+    onEventSent: (event: EmotionUiEvent) -> Unit
 ) {
     Box(
         modifier = Modifier
-            .clickable { onEventSent(EmotionEvent.OnEmotionClicked(emotion.name)) }
+            .clickable { onEventSent(EmotionUiEvent.OnEmotionClicked(emotion.name)) }
             .aspectRatio(1f)
             .border(1.dp, Black, RoundedCornerShape(10.dp)),
         contentAlignment = Alignment.Center

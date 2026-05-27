@@ -33,8 +33,8 @@ import app.loococo.presentation.component.StoneDiaryNavigationButton
 import app.loococo.presentation.screen.write.emotion.formatEmotionEnum
 import app.loococo.presentation.utils.StoneDiaryIcons
 import app.loococo.presentation.utils.formattedHomeDate
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 
 @Composable
 internal fun HomeRoute(
@@ -50,24 +50,26 @@ fun HomeScreen(
     navigateToWrite: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
-    val state by viewModel.collectAsState()
+    val state by viewModel.state.collectAsState()
 
-    viewModel.collectSideEffect {
-        when (it) {
-            is HomeSideEffect.NavigateToDetail -> navigateToDetail(it.id)
-            HomeSideEffect.NavigateToWrite -> navigateToWrite()
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                is HomeUiEffect.NavigateToDetail -> navigateToDetail(it.id)
+                HomeUiEffect.NavigateToWrite -> navigateToWrite()
+            }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         DiaryHeader(
             currentDate = state.currentDate.formattedHomeDate(),
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
         DiaryList(
             diaryList = state.diaryList,
             todayDiaryState = state.todayDiaryState,
-            onEventSent = viewModel::onEventReceived
+            onEventSent = viewModel::onEvent
         )
     }
 }
@@ -76,7 +78,7 @@ fun HomeScreen(
 fun DiaryList(
     diaryList: List<Diary>,
     todayDiaryState: TodayDiaryState,
-    onEventSent: (event: HomeEvent) -> Unit
+    onEventSent: (event: HomeUiEvent) -> Unit
 ) {
     LazyColumn {
         item {
@@ -93,7 +95,7 @@ fun DiaryList(
 @Composable
 fun DiaryHeader(
     currentDate: String,
-    onEventSent: (event: HomeEvent) -> Unit,
+    onEventSent: (event: HomeUiEvent) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -105,7 +107,7 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Previous",
-            onClick = { onEventSent(HomeEvent.OnPreviousMonthClicked) }
+            onClick = { onEventSent(HomeUiEvent.OnPreviousMonthClicked) }
         )
         StoneDiaryHeadlineText(
             text = currentDate,
@@ -115,16 +117,16 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowRight,
             description = "Next",
-            onClick = { onEventSent(HomeEvent.OnNextMonthClicked) }
+            onClick = { onEventSent(HomeUiEvent.OnNextMonthClicked) }
         )
     }
 }
 
 @Composable
-fun IncompleteDiaryEntry(onEventSent: (event: HomeEvent) -> Unit) {
+fun IncompleteDiaryEntry(onEventSent: (event: HomeUiEvent) -> Unit) {
     StoneDiaryListItem(
         modifier = Modifier
-            .clickable { onEventSent(HomeEvent.OnWriteClicked) }
+            .clickable { onEventSent(HomeUiEvent.OnWriteClicked) }
     ) {
         StoneDiaryBodyText(
             text = stringResource(R.string.incomplete_diary),
@@ -156,10 +158,10 @@ fun CompletedDiaryEntry() {
 }
 
 @Composable
-fun DiaryEntryItem(item: Diary, onEventSent: (event: HomeEvent) -> Unit) {
+fun DiaryEntryItem(item: Diary, onEventSent: (event: HomeUiEvent) -> Unit) {
     StoneDiaryListItem(
         modifier = Modifier
-            .clickable { onEventSent(HomeEvent.OnDetailClicked(item.id)) }
+            .clickable { onEventSent(HomeUiEvent.OnDetailClicked(item.id)) }
     ) {
         StoneDiaryLabelText(text = stringResource(R.string.month, item.localDate.dayOfMonth))
         VerticalDivider(

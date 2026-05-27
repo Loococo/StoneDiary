@@ -5,12 +5,12 @@ import app.loococo.domain.ext.isValidPassword
 import app.loococo.domain.model.LoginData
 import app.loococo.domain.model.network.error.ErrorType
 import app.loococo.domain.model.network.Resource
-import app.loococo.domain.repository.LoginRepository
+import app.loococo.domain.repository.ILoginRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
-class LoginUseCase @Inject constructor(private val loginRepository: LoginRepository) {
+class LoginUseCase @Inject constructor(private val loginRepository: ILoginRepository) {
 
     suspend operator fun invoke(
         email: String,

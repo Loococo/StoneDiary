@@ -20,12 +20,12 @@ import app.loococo.domain.model.image.CropData
 import app.loococo.domain.model.image.CropRect
 import app.loococo.domain.model.image.CropSize
 import app.loococo.domain.model.image.ImageData
-import app.loococo.domain.repository.GalleryRepository
+import app.loococo.domain.repository.IGalleryRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GalleryRepositoryImpl @Inject constructor(private val application: Application) :
-    GalleryRepository {
+    IGalleryRepository {
 
     private val imagePagingSource = ImagePagingSource(application)
 

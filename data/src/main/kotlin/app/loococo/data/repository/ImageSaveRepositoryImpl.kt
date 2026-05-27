@@ -4,14 +4,14 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
-import app.loococo.domain.repository.ImageSaveRepository
+import app.loococo.domain.repository.IImageSaveRepository
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 import javax.inject.Inject
 
 class ImageSaveRepositoryImpl @Inject constructor(private val application: Application) :
-    ImageSaveRepository {
+    IImageSaveRepository {
 
     override fun saveCropImage(image: String): String {
         return try {
