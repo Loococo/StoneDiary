@@ -43,8 +43,8 @@ fun EmotionScreen(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Uni
 
     viewModel.collectSideEffect {
         when (it) {
-            EmotionSideEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
-            EmotionSideEffect.NavigateUp -> navigateUp()
+            EmotionUiEffect.NavigateToWrite -> navigateToWrite(state.emotion, state.id)
+            EmotionUiEffect.NavigateUp -> navigateUp()
         }
     }
 
@@ -55,7 +55,7 @@ fun EmotionScreen(navigateToWrite: (String, Long) -> Unit, navigateUp: () -> Uni
 }
 
 @Composable
-fun EmotionHeader(onEventSent: (event: EmotionEvent) -> Unit) {
+fun EmotionHeader(onEventSent: (event: EmotionUiEvent) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,13 +65,13 @@ fun EmotionHeader(onEventSent: (event: EmotionEvent) -> Unit) {
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
-            onClick = { onEventSent(EmotionEvent.OnBackClicked) }
+            onClick = { onEventSent(EmotionUiEvent.OnBackClicked) }
         )
     }
 }
 
 @Composable
-fun EmotionList(onEventSent: (event: EmotionEvent) -> Unit) {
+fun EmotionList(onEventSent: (event: EmotionUiEvent) -> Unit) {
     val emotions = EmotionEnum.entries
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -98,11 +98,11 @@ fun EmotionList(onEventSent: (event: EmotionEvent) -> Unit) {
 @Composable
 fun EmotionListItem(
     emotion: EmotionEnum,
-    onEventSent: (event: EmotionEvent) -> Unit
+    onEventSent: (event: EmotionUiEvent) -> Unit
 ) {
     Box(
         modifier = Modifier
-            .clickable { onEventSent(EmotionEvent.OnEmotionClicked(emotion.name)) }
+            .clickable { onEventSent(EmotionUiEvent.OnEmotionClicked(emotion.name)) }
             .aspectRatio(1f)
             .border(1.dp, Black, RoundedCornerShape(10.dp)),
         contentAlignment = Alignment.Center

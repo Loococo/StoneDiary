@@ -24,49 +24,49 @@ class DetailViewModel @Inject constructor(
     private val useCase: DiaryUseCase,
     savedStateHandle: SavedStateHandle
 ) :
-    ContainerHost<DetailState, DetailSideEffect>, ViewModel() {
-    override val container = container<DetailState, DetailSideEffect>(DetailState())
+    ContainerHost<DetailUiState, DetailUiEffect>, ViewModel() {
+    override val container = container<DetailUiState, DetailUiEffect>(DetailUiState())
 
     private val id = savedStateHandle.toRoute<AppRoute.Detail>().id
 
     init {
-        onEventReceived(DetailEvent.OnDiaryIdUpdated(id))
+        onEventReceived(DetailUiEvent.OnDiaryIdUpdated(id))
     }
 
-    fun onEventReceived(event: DetailEvent) {
+    fun onEventReceived(event: DetailUiEvent) {
         when (event) {
-            is DetailEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
-            DetailEvent.OnBackClicked -> onBackClicked()
-            DetailEvent.OnMoreDialogClicked -> onMoreDialogClicked()
-            DetailEvent.OnModifyClicked -> onModifyClicked()
-            DetailEvent.OnDeletedClicked -> onDeletedClicked()
+            is DetailUiEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
+            DetailUiEvent.OnBackClicked -> onBackClicked()
+            DetailUiEvent.OnMoreDialogClicked -> onMoreDialogClicked()
+            DetailUiEvent.OnModifyClicked -> onModifyClicked()
+            DetailUiEvent.OnDeletedClicked -> onDeletedClicked()
         }
     }
 
     private fun onModifyClicked() = intent {
-        postSideEffect(DetailSideEffect.NavigateToWrite)
+        postSideEffect(DetailUiEffect.NavigateToWrite)
     }
 
     private fun onDeletedClicked() = intent {
         viewModelScope.launch(Dispatchers.Default) {
             useCase.deleteDiary(state.id)
         }
-        postSideEffect(DetailSideEffect.NavigateUp)
+        postSideEffect(DetailUiEffect.NavigateUp)
     }
 
     private fun onMoreDialogClicked() = intent {
         reduce { state.copy(isCurrentDiary = state.diary.localDate.isEqual(LocalDate.now())) }
-        postSideEffect(DetailSideEffect.MoreDialog)
+        postSideEffect(DetailUiEffect.MoreDialog)
     }
 
     private fun onBackClicked() = intent {
-        postSideEffect(DetailSideEffect.NavigateUp)
+        postSideEffect(DetailUiEffect.NavigateUp)
     }
 
     private fun onDiaryIdUpdated(id: Long) = intent {
         if (id == 0L) {
-            postSideEffect(DetailSideEffect.ShowToast(R.string.load_diary_data_waring))
-            postSideEffect(DetailSideEffect.NavigateToHome)
+            postSideEffect(DetailUiEffect.ShowToast(R.string.load_diary_data_waring))
+            postSideEffect(DetailUiEffect.NavigateToHome)
             return@intent
         }
         viewModelScope.launch(Dispatchers.IO) {

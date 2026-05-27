@@ -28,22 +28,22 @@ class GalleryViewModel @Inject constructor(
     private val imageCalculateUseCase: ImageCalculateUesCase,
     private val imageCropUseCase: ImageCropUseCase,
     private val imageSaveUseCase: ImageSaveUseCase
-) : ContainerHost<GalleryState, GallerySideEffect>, ViewModel() {
-    override val container = container<GalleryState, GallerySideEffect>(GalleryState())
+) : ContainerHost<GalleryUiState, GalleryUiEffect>, ViewModel() {
+    override val container = container<GalleryUiState, GalleryUiEffect>(GalleryUiState())
 
     val imagePager: Flow<PagingData<ImageData>> = galleryUseCase.getImages()
 
     init {
-        onEventReceived(GalleryEvent.OnFirstImage(galleryUseCase.getFirstImage()))
+        onEventReceived(GalleryUiEvent.OnFirstImage(galleryUseCase.getFirstImage()))
     }
 
-    fun onEventReceived(event: GalleryEvent) {
+    fun onEventReceived(event: GalleryUiEvent) {
         when (event) {
-            GalleryEvent.OnBackClicked -> onBackClicked()
-            is GalleryEvent.OnImageClicked -> onImageClicked(event.imageData)
-            GalleryEvent.OnSelectedClicked -> onSelectedClicked()
-            is GalleryEvent.OnUpdateZoomData -> onUpdateZoomData(event.cropData)
-            is GalleryEvent.OnFirstImage -> onFirstImage(event.imageData)
+            GalleryUiEvent.OnBackClicked -> onBackClicked()
+            is GalleryUiEvent.OnImageClicked -> onImageClicked(event.imageData)
+            GalleryUiEvent.OnSelectedClicked -> onSelectedClicked()
+            is GalleryUiEvent.OnUpdateZoomData -> onUpdateZoomData(event.cropData)
+            is GalleryUiEvent.OnFirstImage -> onFirstImage(event.imageData)
         }
     }
 
@@ -67,14 +67,14 @@ class GalleryViewModel @Inject constructor(
                 val rect = imageCropUseCase.copRect(state.cropData)
                 val image = imageCropUseCase.cropImage(state.imageData, state.cropData, rect)
                 val result = imageSaveUseCase.saveCropImage(image)
-                postSideEffect(GallerySideEffect.NavigateToWrite(result))
+                postSideEffect(GalleryUiEffect.NavigateToWrite(result))
             }
             reduce { state.copy(isLoading = false) }
         }
     }
 
     private fun onBackClicked() = intent {
-        postSideEffect(GallerySideEffect.NavigateUp)
+        postSideEffect(GalleryUiEffect.NavigateUp)
     }
 
     fun calculateImageSize(imageData: ImageData, boxSize: CropSize): CropSize {

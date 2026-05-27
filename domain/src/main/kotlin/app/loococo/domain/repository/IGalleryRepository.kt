@@ -6,7 +6,7 @@ import app.loococo.domain.model.image.CropRect
 import app.loococo.domain.model.image.ImageData
 import kotlinx.coroutines.flow.Flow
 
-interface GalleryRepository {
+interface IGalleryRepository {
     fun getImages(): Flow<PagingData<ImageData>>
     fun getFirstImage(): ImageData
     suspend fun cropAndSaveImage(

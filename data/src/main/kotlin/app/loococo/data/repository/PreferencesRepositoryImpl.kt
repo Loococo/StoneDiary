@@ -3,12 +3,12 @@ package app.loococo.data.repository
 import app.loococo.data.local.pref.SharedPreferencesManager
 import app.loococo.domain.model.Tokens
 import app.loococo.domain.model.User
-import app.loococo.domain.repository.PreferencesRepository
+import app.loococo.domain.repository.IPreferencesRepository
 import javax.inject.Inject
 
 class PreferencesRepositoryImpl @Inject constructor(
     private val pref: SharedPreferencesManager
-) : PreferencesRepository {
+) : IPreferencesRepository {
 
     companion object {
         private const val KEY_SKIP_LOGIN = "is_skip_login"

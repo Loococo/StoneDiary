@@ -3,12 +3,12 @@ package app.loococo.data.repository
 import app.loococo.data.model.request.RegisterRequest
 import app.loococo.data.remote.manger.AuthDataSource
 import app.loococo.domain.model.network.Resource
-import app.loococo.domain.repository.RegisterRepository
+import app.loococo.domain.repository.IRegisterRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class RegisterRepositoryImpl @Inject constructor(private val authDataSource: AuthDataSource) :
-    RegisterRepository {
+    IRegisterRepository {
 
     override suspend fun register(
         email: String,

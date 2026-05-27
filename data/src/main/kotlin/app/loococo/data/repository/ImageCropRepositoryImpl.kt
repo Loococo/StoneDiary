@@ -13,12 +13,12 @@ import app.loococo.domain.model.image.CropData
 import app.loococo.domain.model.image.CropRect
 import app.loococo.domain.model.image.CropSize
 import app.loococo.domain.model.image.ImageData
-import app.loococo.domain.repository.ImageCropRepository
+import app.loococo.domain.repository.IImageCropRepository
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 class ImageCropRepositoryImpl @Inject constructor(private val application: Application) :
-    ImageCropRepository {
+    IImageCropRepository {
     override suspend fun cropImage(
         imageData: ImageData,
         cropData: CropData,

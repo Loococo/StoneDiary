@@ -14,20 +14,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmotionViewModel @Inject constructor(savedStateHandle: SavedStateHandle) :
-    ContainerHost<EmotionState, EmotionSideEffect>, ViewModel() {
-    override val container = container<EmotionState, EmotionSideEffect>(EmotionState())
+    ContainerHost<EmotionUiState, EmotionUiEffect>, ViewModel() {
+    override val container = container<EmotionUiState, EmotionUiEffect>(EmotionUiState())
 
     private val id = savedStateHandle.toRoute<AppRoute.Write.Emotion>().id
 
     init {
-        onEventReceived(EmotionEvent.OnDiaryIdUpdated(id))
+        onEventReceived(EmotionUiEvent.OnDiaryIdUpdated(id))
     }
 
-    fun onEventReceived(event: EmotionEvent) {
+    fun onEventReceived(event: EmotionUiEvent) {
         when (event) {
-            is EmotionEvent.OnEmotionClicked -> onEmotionClicked(event.emotion)
-            is EmotionEvent.OnDiaryIdUpdated -> onDiaryIdUpdated()
-            EmotionEvent.OnBackClicked -> onBackClicked()
+            is EmotionUiEvent.OnEmotionClicked -> onEmotionClicked(event.emotion)
+            is EmotionUiEvent.OnDiaryIdUpdated -> onDiaryIdUpdated()
+            EmotionUiEvent.OnBackClicked -> onBackClicked()
         }
     }
 
@@ -37,10 +37,10 @@ class EmotionViewModel @Inject constructor(savedStateHandle: SavedStateHandle) :
 
     private fun onEmotionClicked(emotion: String) = intent {
         reduce { state.copy(emotion = emotion) }
-        postSideEffect(EmotionSideEffect.NavigateToWrite)
+        postSideEffect(EmotionUiEffect.NavigateToWrite)
     }
 
     private fun onBackClicked() = intent {
-        postSideEffect(EmotionSideEffect.NavigateUp)
+        postSideEffect(EmotionUiEffect.NavigateUp)
     }
 }

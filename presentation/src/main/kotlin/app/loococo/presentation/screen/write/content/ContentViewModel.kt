@@ -25,29 +25,29 @@ class ContentViewModel @Inject constructor(
     private val diaryUseCase: DiaryUseCase,
     savedStateHandle: SavedStateHandle
 ) :
-    ContainerHost<ContentState, ContentSideEffect>, ViewModel() {
-    override val container = container<ContentState, ContentSideEffect>(ContentState())
+    ContainerHost<ContentUiState, ContentUiEffect>, ViewModel() {
+    override val container = container<ContentUiState, ContentUiEffect>(ContentUiState())
 
     private val emotion = savedStateHandle.toRoute<AppRoute.Write.Content>().emotion
     private val id = savedStateHandle.toRoute<AppRoute.Write.Content>().id
 
     init {
-        onEventReceived(ContentEvent.OnEmotionUpdated(emotion))
-        onEventReceived(ContentEvent.OnDiaryIdUpdated(id))
+        onEventReceived(ContentUiEvent.OnEmotionUpdated(emotion))
+        onEventReceived(ContentUiEvent.OnDiaryIdUpdated(id))
     }
 
-    fun onEventReceived(event: ContentEvent) {
+    fun onEventReceived(event: ContentUiEvent) {
         when (event) {
-            ContentEvent.OnAddImageClicked -> onAddImageClicked()
-            ContentEvent.OnBackClicked -> onBackClicked()
-            ContentEvent.OnConfirmDeleteImage -> onConfirmDeleteImage()
-            is ContentEvent.OnContentUpdated -> onContentUpdated(event.content)
-            is ContentEvent.OnDeleteImageClicked -> onDeleteImageClicked(event.image)
-            is ContentEvent.OnEmotionUpdated -> onEmotionUpdated(event.emotion)
-            is ContentEvent.OnImageAdded -> onImageAdded(event.image)
-            ContentEvent.OnSaveClicked -> onSaveClicked()
-            is ContentEvent.OnTitleUpdated -> onTitleUpdated(event.title)
-            is ContentEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
+            ContentUiEvent.OnAddImageClicked -> onAddImageClicked()
+            ContentUiEvent.OnBackClicked -> onBackClicked()
+            ContentUiEvent.OnConfirmDeleteImage -> onConfirmDeleteImage()
+            is ContentUiEvent.OnContentUpdated -> onContentUpdated(event.content)
+            is ContentUiEvent.OnDeleteImageClicked -> onDeleteImageClicked(event.image)
+            is ContentUiEvent.OnEmotionUpdated -> onEmotionUpdated(event.emotion)
+            is ContentUiEvent.OnImageAdded -> onImageAdded(event.image)
+            ContentUiEvent.OnSaveClicked -> onSaveClicked()
+            is ContentUiEvent.OnTitleUpdated -> onTitleUpdated(event.title)
+            is ContentUiEvent.OnDiaryIdUpdated -> onDiaryIdUpdated(event.id)
         }
     }
 
@@ -75,7 +75,7 @@ class ContentViewModel @Inject constructor(
 
     private fun onDeleteImageClicked(image: String) = intent {
         reduce { state.copy(selectedImage = image) }
-        postSideEffect(ContentSideEffect.DeleteImageDialog)
+        postSideEffect(ContentUiEffect.DeleteImageDialog)
     }
 
     private fun onImageAdded(image: String) = intent {
@@ -86,7 +86,7 @@ class ContentViewModel @Inject constructor(
 
     private fun onSaveClicked() = intent {
         if (state.title.isBlank() || state.content.isBlank()) {
-            postSideEffect(ContentSideEffect.ShowToast(R.string.write_content_waring))
+            postSideEffect(ContentUiEffect.ShowToast(R.string.write_content_waring))
             return@intent
         }
 
@@ -102,7 +102,7 @@ class ContentViewModel @Inject constructor(
                     state.imageList
                 )
             }
-            postSideEffect(ContentSideEffect.NavigateToHome)
+            postSideEffect(ContentUiEffect.NavigateToHome)
 
             reduce { state.copy(isLoading = false) }
         }
@@ -122,13 +122,13 @@ class ContentViewModel @Inject constructor(
 
     private fun onAddImageClicked() = intent {
         if (state.imageList.size == 3) {
-            postSideEffect(ContentSideEffect.ShowToast(R.string.image_limit_waring))
+            postSideEffect(ContentUiEffect.ShowToast(R.string.image_limit_waring))
             return@intent
         }
-        postSideEffect(ContentSideEffect.NavigateToGallery)
+        postSideEffect(ContentUiEffect.NavigateToGallery)
     }
 
     private fun onBackClicked() = intent {
-        postSideEffect(ContentSideEffect.NavigateUp)
+        postSideEffect(ContentUiEffect.NavigateUp)
     }
 }

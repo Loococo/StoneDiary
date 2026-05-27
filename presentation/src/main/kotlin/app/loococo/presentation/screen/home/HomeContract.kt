@@ -3,7 +3,7 @@ package app.loococo.presentation.screen.home
 import app.loococo.domain.model.Diary
 import java.time.LocalDate
 
-data class HomeState(
+data class HomeUiState(
     val isLoading: Boolean = false,
     val currentDate: LocalDate = LocalDate.now(),
     val diaryList: List<Diary> = emptyList(),
@@ -11,14 +11,14 @@ data class HomeState(
     val todayDiaryState: TodayDiaryState = TodayDiaryState.Hide
 )
 
-sealed class HomeSideEffect {
-    data class NavigateToDetail(val id: Long) : HomeSideEffect()
-    data object NavigateToWrite : HomeSideEffect()
+sealed class HomeUiEffect {
+    data class NavigateToDetail(val id: Long) : HomeUiEffect()
+    data object NavigateToWrite : HomeUiEffect()
 }
 
-sealed class HomeEvent {
-    data object OnPreviousMonthClicked : HomeEvent()
-    data object OnNextMonthClicked : HomeEvent()
-    data class OnDetailClicked(val id: Long) : HomeEvent()
-    data object OnWriteClicked : HomeEvent()
+sealed class HomeUiEvent {
+    data object OnPreviousMonthClicked : HomeUiEvent()
+    data object OnNextMonthClicked : HomeUiEvent()
+    data class OnDetailClicked(val id: Long) : HomeUiEvent()
+    data object OnWriteClicked : HomeUiEvent()
 }

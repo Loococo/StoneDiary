@@ -4,7 +4,7 @@ import app.loococo.domain.model.Diary
 import kotlinx.coroutines.flow.Flow
 
 
-interface DiaryRepository {
+interface IDiaryRepository {
     suspend fun insert(diary: Diary)
     suspend fun update(id: Long, diary: Diary)
     suspend fun getDiary(id: Long): Flow<Diary>

@@ -19,9 +19,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
-    ContainerHost<HomeState, HomeSideEffect>, ViewModel() {
+    ContainerHost<HomeUiState, HomeUiEffect>, ViewModel() {
 
-    override val container = container<HomeState, HomeSideEffect>(HomeState())
+    override val container = container<HomeUiState, HomeUiEffect>(HomeUiState())
 
     private val currentDate =
         LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -31,21 +31,21 @@ class HomeViewModel @Inject constructor(private val useCase: DiaryUseCase) :
         loadDiariesForMonth()
     }
 
-    fun onEventReceived(event: HomeEvent) {
+    fun onEventReceived(event: HomeUiEvent) {
         when (event) {
-            HomeEvent.OnPreviousMonthClicked -> updateMonth(-1)
-            HomeEvent.OnNextMonthClicked -> updateMonth(1)
-            is HomeEvent.OnDetailClicked -> navigateToDetail(event.id)
-            HomeEvent.OnWriteClicked -> navigateToWrite()
+            HomeUiEvent.OnPreviousMonthClicked -> updateMonth(-1)
+            HomeUiEvent.OnNextMonthClicked -> updateMonth(1)
+            is HomeUiEvent.OnDetailClicked -> navigateToDetail(event.id)
+            HomeUiEvent.OnWriteClicked -> navigateToWrite()
         }
     }
 
     private fun navigateToDetail(id: Long) = intent {
-        postSideEffect(HomeSideEffect.NavigateToDetail(id))
+        postSideEffect(HomeUiEffect.NavigateToDetail(id))
     }
 
     private fun navigateToWrite() = intent {
-        postSideEffect(HomeSideEffect.NavigateToWrite)
+        postSideEffect(HomeUiEffect.NavigateToWrite)
     }
 
     private fun updateMonth(offset: Long) = intent {

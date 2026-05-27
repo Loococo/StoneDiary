@@ -20,27 +20,27 @@ class LoginViewModel @Inject constructor(
     private val preferencesUseCase: PreferencesUseCase,
     private val errorMessageHandler: ErrorMessageHandler
 ) :
-    ContainerHost<LoginState, LoginSideEffect>, ViewModel() {
+    ContainerHost<LoginUiState, LoginUiEffect>, ViewModel() {
 
-    override val container = container<LoginState, LoginSideEffect>(LoginState())
+    override val container = container<LoginUiState, LoginUiEffect>(LoginUiState())
 
-    fun onEventReceived(event: LoginEvent) {
+    fun onEventReceived(event: LoginUiEvent) {
         when (event) {
-            is LoginEvent.OnEmailUpdated -> onEmailUpdated(event.email)
-            is LoginEvent.OnPasswordUpdated -> onPasswordUpdated(event.password)
-            LoginEvent.OnLoginClicked -> onLoginClicked()
-            LoginEvent.OnRegisterClicked -> onRegisterClicked()
-            LoginEvent.OnSkipLoginClicked -> onNoLoginClicked()
+            is LoginUiEvent.OnEmailUpdated -> onEmailUpdated(event.email)
+            is LoginUiEvent.OnPasswordUpdated -> onPasswordUpdated(event.password)
+            LoginUiEvent.OnLoginClicked -> onLoginClicked()
+            LoginUiEvent.OnRegisterClicked -> onRegisterClicked()
+            LoginUiEvent.OnSkipLoginClicked -> onNoLoginClicked()
         }
     }
 
     private fun onNoLoginClicked() = intent {
         preferencesUseCase.saveSkipLoginState()
-        postSideEffect(LoginSideEffect.NavigateToHome)
+        postSideEffect(LoginUiEffect.NavigateToHome)
     }
 
     private fun onRegisterClicked() = intent {
-        postSideEffect(LoginSideEffect.NavigateToRegister)
+        postSideEffect(LoginUiEffect.NavigateToRegister)
     }
 
     private fun onLoginClicked() = intent {
@@ -50,13 +50,13 @@ class LoginViewModel @Inject constructor(
             when (response) {
                 is Resource.Success -> {
                     preferencesUseCase.saveLoginData(response.data)
-                    postSideEffect(LoginSideEffect.NavigateToHome)
+                    postSideEffect(LoginUiEffect.NavigateToHome)
                 }
 
                 is Resource.Error -> {
                     val errorMessage = errorMessageHandler.getErrorMessage(response.error)
                     errorMessage?.let {
-                        postSideEffect(LoginSideEffect.ShowToast(errorMessage))
+                        postSideEffect(LoginUiEffect.ShowToast(errorMessage))
                     }
                 }
             }

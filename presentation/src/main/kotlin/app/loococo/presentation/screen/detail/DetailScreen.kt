@@ -65,14 +65,14 @@ fun DetailScreen(
 
     viewModel.collectSideEffect {
         when (it) {
-            DetailSideEffect.NavigateToHome -> navigateToHome()
-            DetailSideEffect.NavigateToWrite -> navigateToWrite(state.id)
-            DetailSideEffect.NavigateUp -> navigateUp()
-            DetailSideEffect.MoreDialog -> {
+            DetailUiEffect.NavigateToHome -> navigateToHome()
+            DetailUiEffect.NavigateToWrite -> navigateToWrite(state.id)
+            DetailUiEffect.NavigateUp -> navigateUp()
+            DetailUiEffect.MoreDialog -> {
                 showMoreDialog = true
             }
 
-            is DetailSideEffect.ShowToast -> {
+            is DetailUiEffect.ShowToast -> {
                 Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
             }
         }
@@ -91,17 +91,17 @@ fun DetailScreen(
             showMoreDialog = false
         },
         onModify = {
-            viewModel.onEventReceived(DetailEvent.OnModifyClicked)
+            viewModel.onEventReceived(DetailUiEvent.OnModifyClicked)
         },
         onDelete = {
-            viewModel.onEventReceived(DetailEvent.OnDeletedClicked)
+            viewModel.onEventReceived(DetailUiEvent.OnDeletedClicked)
         }
     )
 
 }
 
 @Composable
-fun DetailHeader(onEventSent: (event: DetailEvent) -> Unit) {
+fun DetailHeader(onEventSent: (event: DetailUiEvent) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,14 +112,14 @@ fun DetailHeader(onEventSent: (event: DetailEvent) -> Unit) {
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
-            onClick = { onEventSent(DetailEvent.OnBackClicked) }
+            onClick = { onEventSent(DetailUiEvent.OnBackClicked) }
         )
 
         StoneDiaryNavigationButton(
             size = 35.dp,
             icon = StoneDiaryIcons.More,
             description = "more",
-            onClick = { onEventSent(DetailEvent.OnMoreDialogClicked) }
+            onClick = { onEventSent(DetailUiEvent.OnMoreDialogClicked) }
         )
     }
 }

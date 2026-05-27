@@ -1,13 +1,13 @@
 package app.loococo.domain.usecase
 
 import app.loococo.domain.model.Diary
-import app.loococo.domain.repository.DiaryRepository
+import app.loococo.domain.repository.IDiaryRepository
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 
-class DiaryUseCase @Inject constructor(private val diaryRepository: DiaryRepository) {
+class DiaryUseCase @Inject constructor(private val diaryRepository: IDiaryRepository) {
 
     suspend fun insertOrUpdate(
         id: Long,

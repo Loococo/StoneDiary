@@ -4,12 +4,12 @@ import app.loococo.data.local.room.dao.DiaryDao
 import app.loococo.data.local.room.model.toDiary
 import app.loococo.data.local.room.model.toDiaryEntity
 import app.loococo.domain.model.Diary
-import app.loococo.domain.repository.DiaryRepository
+import app.loococo.domain.repository.IDiaryRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
 
-class DiaryRepositoryImpl @Inject constructor(private val dao: DiaryDao) : DiaryRepository {
+class DiaryRepositoryImpl @Inject constructor(private val dao: DiaryDao) : IDiaryRepository {
     override suspend fun insert(diary: Diary) {
         dao.insert(diary.toDiaryEntity())
     }

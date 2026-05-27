@@ -1,12 +1,12 @@
 package app.loococo.stonediary.di
 
-import app.loococo.domain.repository.DiaryRepository
-import app.loococo.domain.repository.GalleryRepository
-import app.loococo.domain.repository.ImageCropRepository
-import app.loococo.domain.repository.ImageSaveRepository
-import app.loococo.domain.repository.LoginRepository
-import app.loococo.domain.repository.PreferencesRepository
-import app.loococo.domain.repository.RegisterRepository
+import app.loococo.domain.repository.IDiaryRepository
+import app.loococo.domain.repository.IGalleryRepository
+import app.loococo.domain.repository.IImageCropRepository
+import app.loococo.domain.repository.IImageSaveRepository
+import app.loococo.domain.repository.ILoginRepository
+import app.loococo.domain.repository.IPreferencesRepository
+import app.loococo.domain.repository.IRegisterRepository
 import app.loococo.domain.usecase.DiaryUseCase
 import app.loococo.domain.usecase.GalleryUseCase
 import app.loococo.domain.usecase.ImageCalculateUesCase
@@ -27,21 +27,21 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideDiaryUseCase(repository: DiaryRepository): DiaryUseCase = DiaryUseCase(repository)
+    fun provideDiaryUseCase(repository: IDiaryRepository): DiaryUseCase = DiaryUseCase(repository)
 
     @Provides
     @Singleton
-    fun provideGalleryUseCase(repository: GalleryRepository): GalleryUseCase =
+    fun provideGalleryUseCase(repository: IGalleryRepository): GalleryUseCase =
         GalleryUseCase(repository)
 
     @Provides
     @Singleton
-    fun provideImageCropUseCase(repository: ImageCropRepository): ImageCropUseCase =
+    fun provideImageCropUseCase(repository: IImageCropRepository): ImageCropUseCase =
         ImageCropUseCase(repository)
 
     @Provides
     @Singleton
-    fun provideImageSaveUseCase(repository: ImageSaveRepository): ImageSaveUseCase =
+    fun provideImageSaveUseCase(repository: IImageSaveRepository): ImageSaveUseCase =
         ImageSaveUseCase(repository)
 
     @Provides
@@ -50,14 +50,14 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideLoginUseCase(repository: LoginRepository): LoginUseCase = LoginUseCase(repository)
+    fun provideLoginUseCase(repository: ILoginRepository): LoginUseCase = LoginUseCase(repository)
 
     @Provides
     @Singleton
-    fun provideRegisterUseCase(repository: RegisterRepository): RegisterUseCase = RegisterUseCase(repository)
+    fun provideRegisterUseCase(repository: IRegisterRepository): RegisterUseCase = RegisterUseCase(repository)
 
     @Provides
     @Singleton
-    fun providePreferencesUseCase(repository: PreferencesRepository): PreferencesUseCase = PreferencesUseCase(repository)
+    fun providePreferencesUseCase(repository: IPreferencesRepository): PreferencesUseCase = PreferencesUseCase(repository)
 
 }

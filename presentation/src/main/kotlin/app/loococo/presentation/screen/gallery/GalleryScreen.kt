@@ -59,8 +59,8 @@ private fun GalleryScreen(
 
     viewModel.collectSideEffect {
         when (it) {
-            GallerySideEffect.NavigateUp -> navigateUp()
-            is GallerySideEffect.NavigateToWrite -> navigateUpToWrite(it.image)
+            GalleryUiEffect.NavigateUp -> navigateUp()
+            is GalleryUiEffect.NavigateToWrite -> navigateUpToWrite(it.image)
         }
     }
 
@@ -85,7 +85,7 @@ private fun GalleryScreen(
 }
 
 @Composable
-private fun GalleryHeader(onEventSent: (GalleryEvent) -> Unit) {
+private fun GalleryHeader(onEventSent: (GalleryUiEvent) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,14 +96,14 @@ private fun GalleryHeader(onEventSent: (GalleryEvent) -> Unit) {
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
-            onClick = { onEventSent(GalleryEvent.OnBackClicked) }
+            onClick = { onEventSent(GalleryUiEvent.OnBackClicked) }
         )
 
         StoneDiaryNavigationButton(
             size = 35.dp,
             icon = StoneDiaryIcons.Check,
             description = "ok",
-            onClick = { onEventSent(GalleryEvent.OnSelectedClicked) }
+            onClick = { onEventSent(GalleryUiEvent.OnSelectedClicked) }
         )
     }
 }
@@ -113,7 +113,7 @@ private fun SelectedImage(
     imageData: ImageData,
     calculateImageSize: (ImageData, CropSize) -> CropSize,
     calculateScaleFactor: (CropSize, CropSize) -> Float,
-    onEventSent: (GalleryEvent) -> Unit
+    onEventSent: (GalleryUiEvent) -> Unit
 ) {
     var boxSize by remember { mutableStateOf(CropSize()) }
 
@@ -146,11 +146,11 @@ private fun ImageZoom(
     boxSize: CropSize,
     calculateImageSize: (ImageData, CropSize) -> CropSize,
     calculateScaleFactor: (CropSize, CropSize) -> Float,
-    onEventSent: (GalleryEvent) -> Unit
+    onEventSent: (GalleryUiEvent) -> Unit
 ) {
     val zoomHelper = remember {
         ImageZoomHelper { cropData ->
-            onEventSent(GalleryEvent.OnUpdateZoomData(cropData))
+            onEventSent(GalleryUiEvent.OnUpdateZoomData(cropData))
         }
     }
 
@@ -202,7 +202,7 @@ private fun ZoomableImage(
 @Composable
 private fun ImageGrid(
     lazyPagingItems: LazyPagingItems<ImageData>,
-    onEventSent: (GalleryEvent) -> Unit
+    onEventSent: (GalleryUiEvent) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
@@ -222,13 +222,13 @@ private fun ImageGrid(
 @Composable
 private fun ImageItem(
     imageData: ImageData,
-    onEventSent: (GalleryEvent) -> Unit
+    onEventSent: (GalleryUiEvent) -> Unit
 ) {
     Box(
         modifier = Modifier
             .padding(2.dp)
             .aspectRatio(1f)
-            .clickable { onEventSent(GalleryEvent.OnImageClicked(imageData)) }
+            .clickable { onEventSent(GalleryUiEvent.OnImageClicked(imageData)) }
     ) {
         StoneDiaryAsyncImage(imageData.image)
     }

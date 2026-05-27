@@ -83,17 +83,17 @@ private fun ContentScreen(
 
     LaunchedEffect(image) {
         if (image.isNotBlank()) {
-            viewModel.onEventReceived(ContentEvent.OnImageAdded(image))
+            viewModel.onEventReceived(ContentUiEvent.OnImageAdded(image))
         }
     }
 
     viewModel.collectSideEffect { effect ->
         when (effect) {
-            ContentSideEffect.NavigateUp -> navigateUp()
-            ContentSideEffect.NavigateToHome -> navigateToHome()
-            ContentSideEffect.NavigateToGallery -> navigateToGallery()
-            ContentSideEffect.DeleteImageDialog -> showDeleteImageDialog = true
-            is ContentSideEffect.ShowToast -> {
+            ContentUiEffect.NavigateUp -> navigateUp()
+            ContentUiEffect.NavigateToHome -> navigateToHome()
+            ContentUiEffect.NavigateToGallery -> navigateToGallery()
+            ContentUiEffect.DeleteImageDialog -> showDeleteImageDialog = true
+            is ContentUiEffect.ShowToast -> {
                 Toast.makeText(context, effect.res, Toast.LENGTH_SHORT).show()
             }
         }
@@ -121,14 +121,14 @@ private fun ContentScreen(
             showDeleteImageDialog = false
         },
         onImageDeleted = {
-            viewModel.onEventReceived(ContentEvent.OnConfirmDeleteImage)
+            viewModel.onEventReceived(ContentUiEvent.OnConfirmDeleteImage)
         }
     )
     CircularProgressBar(state.isLoading)
 }
 
 @Composable
-private fun ContentHeader(onEventSent: (ContentEvent) -> Unit) {
+private fun ContentHeader(onEventSent: (ContentUiEvent) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,12 +138,12 @@ private fun ContentHeader(onEventSent: (ContentEvent) -> Unit) {
         NavigationButton(
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Back",
-            onClick = { onEventSent(ContentEvent.OnBackClicked) }
+            onClick = { onEventSent(ContentUiEvent.OnBackClicked) }
         )
         NavigationButton(
             icon = StoneDiaryIcons.Check,
             description = "Save",
-            onClick = { onEventSent(ContentEvent.OnSaveClicked) }
+            onClick = { onEventSent(ContentUiEvent.OnSaveClicked) }
         )
     }
 }
@@ -167,7 +167,7 @@ private fun ContentTitle(
     emotion: EmotionEnum,
     currentDate: String,
     title: String,
-    onEventSent: (ContentEvent) -> Unit
+    onEventSent: (ContentUiEvent) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -179,7 +179,7 @@ private fun ContentTitle(
         TitleContent(
             currentDate = currentDate,
             title = title,
-            onTitleChange = { onEventSent(ContentEvent.OnTitleUpdated(it)) }
+            onTitleChange = { onEventSent(ContentUiEvent.OnTitleUpdated(it)) }
         )
     }
 }
@@ -221,7 +221,7 @@ private fun ContentBody(
     context: Context,
     content: String,
     imageList: MutableList<String>,
-    onEventSent: (ContentEvent) -> Unit
+    onEventSent: (ContentUiEvent) -> Unit
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -232,7 +232,7 @@ private fun ContentBody(
     ) {
         StoneDiaryContentTextField(
             text = content,
-            onValueChange = { onEventSent(ContentEvent.OnContentUpdated(it)) }
+            onValueChange = { onEventSent(ContentUiEvent.OnContentUpdated(it)) }
         )
         HeightSpacer(height = 10)
         ContentPhoto(
@@ -247,7 +247,7 @@ private fun ContentBody(
 private fun ContentPhoto(
     context: Context,
     imageList: MutableList<String>,
-    onEventSent: (ContentEvent) -> Unit
+    onEventSent: (ContentUiEvent) -> Unit
 ) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
         items(imageList.asReversed()) { imageUrl ->
@@ -260,7 +260,7 @@ private fun ContentPhoto(
 }
 
 @Composable
-private fun PhotoItem(image: String, onEventSent: (ContentEvent) -> Unit) {
+private fun PhotoItem(image: String, onEventSent: (ContentUiEvent) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -274,7 +274,7 @@ private fun PhotoItem(image: String, onEventSent: (ContentEvent) -> Unit) {
         ) {
             StoneDiaryAsyncImage(image)
         }
-        DeleteButton { onEventSent(ContentEvent.OnDeleteImageClicked(image)) }
+        DeleteButton { onEventSent(ContentUiEvent.OnDeleteImageClicked(image)) }
     }
 }
 
@@ -297,10 +297,10 @@ private fun DeleteButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun PhotoAddItem(context: Context, onEventSent: (ContentEvent) -> Unit) {
+private fun PhotoAddItem(context: Context, onEventSent: (ContentUiEvent) -> Unit) {
     val permissionLauncher = rememberPermissionLauncher { permissions ->
         handlePermissionResult(permissions) {
-            onEventSent(ContentEvent.OnAddImageClicked)
+            onEventSent(ContentUiEvent.OnAddImageClicked)
         }
     }
 
@@ -316,7 +316,7 @@ private fun PhotoAddItem(context: Context, onEventSent: (ContentEvent) -> Unit) 
                 .background(Gray, RoundedCornerShape(8.dp))
                 .clickable {
                     checkPermission(context, permissionLauncher) {
-                        onEventSent(ContentEvent.OnAddImageClicked)
+                        onEventSent(ContentUiEvent.OnAddImageClicked)
                     }
                 },
             contentAlignment = Alignment.Center

@@ -17,16 +17,16 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val errorMessageHandler: ErrorMessageHandler
-) : ContainerHost<RegisterState, RegisterSideEffect>, ViewModel() {
+) : ContainerHost<RegisterUiState, RegisterUiEffect>, ViewModel() {
 
-    override val container = container<RegisterState, RegisterSideEffect>(RegisterState())
+    override val container = container<RegisterUiState, RegisterUiEffect>(RegisterUiState())
 
-    fun onEventReceived(event: RegisterEvent) {
+    fun onEventReceived(event: RegisterUiEvent) {
         when (event) {
-            is RegisterEvent.OnEmailUpdated -> onEmailUpdated(event.email)
-            is RegisterEvent.OnPasswordUpdated -> onPasswordUpdated(event.password)
-            is RegisterEvent.OnNameUpdated -> onNameUpdated(event.name)
-            RegisterEvent.OnRegisterClicked -> onRegisterClicked()
+            is RegisterUiEvent.OnEmailUpdated -> onEmailUpdated(event.email)
+            is RegisterUiEvent.OnPasswordUpdated -> onPasswordUpdated(event.password)
+            is RegisterUiEvent.OnNameUpdated -> onNameUpdated(event.name)
+            RegisterUiEvent.OnRegisterClicked -> onRegisterClicked()
         }
     }
 
@@ -41,7 +41,7 @@ class RegisterViewModel @Inject constructor(
                 is Resource.Error -> {
                     val errorMessage = errorMessageHandler.getErrorMessage(response.error)
                     errorMessage?.let {
-                        postSideEffect(RegisterSideEffect.ShowToast(errorMessage))
+                        postSideEffect(RegisterUiEffect.ShowToast(errorMessage))
                     }
                 }
             }

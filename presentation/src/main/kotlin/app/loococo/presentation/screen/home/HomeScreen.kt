@@ -54,8 +54,8 @@ fun HomeScreen(
 
     viewModel.collectSideEffect {
         when (it) {
-            is HomeSideEffect.NavigateToDetail -> navigateToDetail(it.id)
-            HomeSideEffect.NavigateToWrite -> navigateToWrite()
+            is HomeUiEffect.NavigateToDetail -> navigateToDetail(it.id)
+            HomeUiEffect.NavigateToWrite -> navigateToWrite()
         }
     }
 
@@ -76,7 +76,7 @@ fun HomeScreen(
 fun DiaryList(
     diaryList: List<Diary>,
     todayDiaryState: TodayDiaryState,
-    onEventSent: (event: HomeEvent) -> Unit
+    onEventSent: (event: HomeUiEvent) -> Unit
 ) {
     LazyColumn {
         item {
@@ -93,7 +93,7 @@ fun DiaryList(
 @Composable
 fun DiaryHeader(
     currentDate: String,
-    onEventSent: (event: HomeEvent) -> Unit,
+    onEventSent: (event: HomeUiEvent) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -105,7 +105,7 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowLeft,
             description = "Previous",
-            onClick = { onEventSent(HomeEvent.OnPreviousMonthClicked) }
+            onClick = { onEventSent(HomeUiEvent.OnPreviousMonthClicked) }
         )
         StoneDiaryHeadlineText(
             text = currentDate,
@@ -115,16 +115,16 @@ fun DiaryHeader(
             size = 35.dp,
             icon = StoneDiaryIcons.ArrowRight,
             description = "Next",
-            onClick = { onEventSent(HomeEvent.OnNextMonthClicked) }
+            onClick = { onEventSent(HomeUiEvent.OnNextMonthClicked) }
         )
     }
 }
 
 @Composable
-fun IncompleteDiaryEntry(onEventSent: (event: HomeEvent) -> Unit) {
+fun IncompleteDiaryEntry(onEventSent: (event: HomeUiEvent) -> Unit) {
     StoneDiaryListItem(
         modifier = Modifier
-            .clickable { onEventSent(HomeEvent.OnWriteClicked) }
+            .clickable { onEventSent(HomeUiEvent.OnWriteClicked) }
     ) {
         StoneDiaryBodyText(
             text = stringResource(R.string.incomplete_diary),
@@ -156,10 +156,10 @@ fun CompletedDiaryEntry() {
 }
 
 @Composable
-fun DiaryEntryItem(item: Diary, onEventSent: (event: HomeEvent) -> Unit) {
+fun DiaryEntryItem(item: Diary, onEventSent: (event: HomeUiEvent) -> Unit) {
     StoneDiaryListItem(
         modifier = Modifier
-            .clickable { onEventSent(HomeEvent.OnDetailClicked(item.id)) }
+            .clickable { onEventSent(HomeUiEvent.OnDetailClicked(item.id)) }
     ) {
         StoneDiaryLabelText(text = stringResource(R.string.month, item.localDate.dayOfMonth))
         VerticalDivider(

@@ -2,10 +2,10 @@ package app.loococo.domain.usecase
 
 import app.loococo.domain.model.LoginData
 import app.loococo.domain.model.User
-import app.loococo.domain.repository.PreferencesRepository
+import app.loococo.domain.repository.IPreferencesRepository
 import javax.inject.Inject
 
-class PreferencesUseCase @Inject constructor(private val preferencesRepository: PreferencesRepository) {
+class PreferencesUseCase @Inject constructor(private val preferencesRepository: IPreferencesRepository) {
 
     fun saveSkipLoginState() {
         preferencesRepository.saveSkipLoginState()

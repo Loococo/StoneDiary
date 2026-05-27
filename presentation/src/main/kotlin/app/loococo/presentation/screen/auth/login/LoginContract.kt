@@ -1,22 +1,22 @@
 package app.loococo.presentation.screen.auth.login
 
 
-data class LoginState(
+data class LoginUiState(
     val isLoading: Boolean = false,
     val email: String = "",
     val password: String = ""
 )
 
-sealed class LoginSideEffect {
-    data object NavigateToHome : LoginSideEffect()
-    data object NavigateToRegister : LoginSideEffect()
-    data class ShowToast(val res: String) : LoginSideEffect()
+sealed class LoginUiEffect {
+    data object NavigateToHome : LoginUiEffect()
+    data object NavigateToRegister : LoginUiEffect()
+    data class ShowToast(val res: String) : LoginUiEffect()
 }
 
-sealed class LoginEvent {
-    data class OnEmailUpdated(val email: String) : LoginEvent()
-    data class OnPasswordUpdated(val password: String) : LoginEvent()
-    data object OnLoginClicked : LoginEvent()
-    data object OnRegisterClicked : LoginEvent()
-    data object OnSkipLoginClicked : LoginEvent()
+sealed class LoginUiEvent {
+    data class OnEmailUpdated(val email: String) : LoginUiEvent()
+    data class OnPasswordUpdated(val password: String) : LoginUiEvent()
+    data object OnLoginClicked : LoginUiEvent()
+    data object OnRegisterClicked : LoginUiEvent()
+    data object OnSkipLoginClicked : LoginUiEvent()
 }

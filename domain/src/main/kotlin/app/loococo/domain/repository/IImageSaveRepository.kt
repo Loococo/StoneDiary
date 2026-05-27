@@ -1,5 +1,5 @@
 package app.loococo.domain.repository
 
-interface ImageSaveRepository {
+interface IImageSaveRepository {
     fun saveCropImage(image: String):String
 }

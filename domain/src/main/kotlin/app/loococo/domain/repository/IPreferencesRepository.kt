@@ -3,7 +3,7 @@ package app.loococo.domain.repository
 import app.loococo.domain.model.Tokens
 import app.loococo.domain.model.User
 
-interface PreferencesRepository {
+interface IPreferencesRepository {
     fun saveSkipLoginState()
     fun isSkipLogin(): Boolean
 

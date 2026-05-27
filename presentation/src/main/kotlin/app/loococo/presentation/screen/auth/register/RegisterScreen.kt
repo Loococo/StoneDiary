@@ -43,7 +43,7 @@ fun RegisterScreen() {
 
     viewModel.collectSideEffect {
         when (it) {
-            is RegisterSideEffect.ShowToast -> {
+            is RegisterUiEffect.ShowToast -> {
                 Toast.makeText(context, it.res, Toast.LENGTH_SHORT).show()
             }
         }
@@ -90,7 +90,7 @@ fun RegisterContent(
     email: String,
     password: String,
     name: String,
-    onEventSent: (RegisterEvent) -> Unit
+    onEventSent: (RegisterUiEvent) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         HeightSpacer(height = 20)
@@ -99,7 +99,7 @@ fun RegisterContent(
             text = email,
             hint = stringResource(R.string.email_hint),
             onValueChange = {
-                onEventSent(RegisterEvent.OnEmailUpdated(it))
+                onEventSent(RegisterUiEvent.OnEmailUpdated(it))
             }
         )
 
@@ -110,7 +110,7 @@ fun RegisterContent(
             hint = stringResource(R.string.password_hint),
             imeAction = ImeAction.Next,
             onValueChange = {
-                onEventSent(RegisterEvent.OnPasswordUpdated(it))
+                onEventSent(RegisterUiEvent.OnPasswordUpdated(it))
             }
         )
 
@@ -120,7 +120,7 @@ fun RegisterContent(
             text = name,
             hint = stringResource(R.string.name_hint),
             onValueChange = {
-                onEventSent(RegisterEvent.OnNameUpdated(it))
+                onEventSent(RegisterUiEvent.OnNameUpdated(it))
             }
         )
 
@@ -129,7 +129,7 @@ fun RegisterContent(
         StoneDiaryRoundButton(
             text = stringResource(R.string.register),
             onClick = {
-                onEventSent(RegisterEvent.OnRegisterClicked)
+                onEventSent(RegisterUiEvent.OnRegisterClicked)
             }
         )
 
