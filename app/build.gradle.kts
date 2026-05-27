@@ -87,4 +87,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp3)
+
+    // 로깅 — Timber (디버그 전용)
+    implementation(libs.timber)
 }
